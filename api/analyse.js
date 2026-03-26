@@ -13,6 +13,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    const body = req.body;
+
+    if (!body || !body.model) {
+      res.status(400).json({
+        error: "Bad request body received by proxy",
+        received_type: typeof body,
+        received_keys: body ? Object.keys(body) : [],
+      });
+      return;
+    }
+
     const upstream = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -20,20 +31,18 @@ module.exports = async function handler(req, res) {
         "x-api-key":         apiKey,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(body),
     });
-    const data = await upstream.json();
+
+    const text = await upstream.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
     res.status(upstream.status).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Tell Vercel to allow up to 10MB request bodies
 module.exports.config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb",
-    },
-  },
+  api: { bodyParser: { sizeLimit: "10mb" } },
 };
