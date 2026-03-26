@@ -489,9 +489,9 @@ async function analyzeDocuments() {
         messages:[{role:"user", content:[{type:"text",text:userText}]}]
       })
     });
-    const _rt = await res.text(); console.log("RAW RESPONSE:", _rt.substring(0,1000)); if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`);
+    const _rt = await res.text(); console.log("RAW RESPONSE:", _rt.substring(0,1000)); if (!res.ok) throw new Error("API error " + res.status + ": " + _rt.substring(0,200));
 
-    const data = await res.json();
+    const data = JSON.parse(_rt);
     const raw  = data.content.map(b=>b.text||"").join("").replace(/```json\n?|```/g,"").trim();
 
     setProgress("Parsing results…");
