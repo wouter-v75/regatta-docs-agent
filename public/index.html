@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -489,12 +490,9 @@ async function analyzeDocuments() {
         messages:[{role:"user", content:[{type:"text",text:userText}]}]
       })
     });
-    setProgress(`Got response: HTTP ${res.status}…`);
     const responseText = await res.text();
-    setProgress(`Response length: ${responseText.length} chars…`);
 
     if (!res.ok) {
-      showDebug("API Error response", responseText);
       throw new Error(`API error ${res.status}: ${responseText.substring(0,300)}`);
     }
 
@@ -502,19 +500,14 @@ async function analyzeDocuments() {
     try {
       data = JSON.parse(responseText);
     } catch(parseErr) {
-      showDebug("Failed to parse API response as JSON", responseText);
       throw new Error("Response was not valid JSON: " + responseText.substring(0,300));
     }
 
-    setProgress("Extracting text from response…");
     if (!data.content) {
-      showDebug("Unexpected API response shape", JSON.stringify(data));
       throw new Error("No content in API response: " + JSON.stringify(data).substring(0,300));
     }
 
     const raw = data.content.map(b=>b.text||"").join("").replace(/```json\n?|```/g,"").trim();
-    setProgress(`Parsing JSON (${raw.length} chars)…`);
-    showDebug("Raw AI output (first 500 chars)", raw.substring(0,500));
 
     let jsonStr = raw;
     try { JSON.parse(jsonStr); } catch {
@@ -532,7 +525,6 @@ async function analyzeDocuments() {
     try {
       parsed = JSON.parse(jsonStr);
     } catch(jsonErr) {
-      showDebug("JSON parse failed", jsonStr.substring(0,500));
       throw new Error("Could not parse AI response as JSON: " + jsonErr.message);
     }
 
@@ -552,8 +544,7 @@ function showError(msg)  {
   el.style.display = msg?"":"none";
   el.innerHTML = msg ? `<strong>Error:</strong> ${esc(msg)}` : "";
 }
-function showDebug(label, content) {
-  console.log(`[DEBUG] ${label}:`, content);
+function
   const existing = document.getElementById("debug-box");
   const box = existing || document.createElement("div");
   if (!existing) {
@@ -647,8 +638,6 @@ function renderChanges(changes) {
 function showResults(result) {
   const el = document.getElementById("results");
   if (!result) { el.style.display="none"; el.innerHTML=""; return; }
-  console.log("[DEBUG] showResults called with:", JSON.stringify(result).substring(0,200));
-  try {
   el.style.display = "";
 
   const grouped  = SECTION_CONFIG.map(s => renderGroupedSection(s, result[s.key])).join("");
@@ -688,12 +677,6 @@ function showResults(result) {
     </div>`;
 
   window._currentResult = result;
-  console.log("[DEBUG] showResults completed OK");
-  } catch(e) {
-    console.error("[DEBUG] showResults CRASHED:", e.message, e.stack);
-    document.getElementById("error-box").style.display = "";
-    document.getElementById("error-box").innerHTML = "<strong>Render error:</strong> " + e.message;
-  }
 }
 
 function resetApp() {
