@@ -1,11 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/analyse.js", "use": "@vercel/node" },
-    { "src": "public/**",      "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/analyse", "dest": "/api/analyse.js" },
-    { "src": "/(.*)",        "dest": "/public/$1" }
+  "rewrites": [
+    { "source": "/api/analyse", "destination": "/api/analyse.js" }
   ]
 }
