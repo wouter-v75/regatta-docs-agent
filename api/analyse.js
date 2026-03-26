@@ -13,15 +13,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Always read raw body — do not rely on Vercel's body parser
-    const raw = await new Promise((resolve, reject) => {
-      let data = "";
-      req.on("data", chunk => data += chunk);
-      req.on("end",  () => resolve(data));
-      req.on("error", reject);
-    });
+    const body = req.body;
 
-    const body = JSON.parse(raw);
+    // Debug: return what we received if body looks wrong
+    if (!body || !body.model) {
+      res.status(400).json({
+        error: "Bad request body",
+        received: typeof body,
+        keys: body ? Object.keys(body) : [],
+      });
+      return;
+    }
 
     const upstream = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -36,13 +38,13 @@ module.exports = async function handler(req, res) {
     const text = await upstream.text();
     let data;
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
     res.status(upstream.status).json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 };
 
-// Disable body parser entirely so we can read the raw stream
 module.exports.config = {
-  api: { bodyParser: false },
+  api: { bodyParser: { sizeLimit: "10mb" } },
 };
