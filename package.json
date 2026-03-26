@@ -1,0 +1,7 @@
+{
+  "name": "regatta-abstract-agent",
+  "version": "1.0.0",
+  "description": "AI-powered regatta sailing instructions abstract generator",
+  "private": true,
+  "engines": { "node": ">=18" }
+}
