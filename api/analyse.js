@@ -1,9 +1,4 @@
-/**
- * Vercel serverless function — proxies requests to the Anthropic API.
- * The ANTHROPIC_API_KEY env var is set in Vercel project settings (never in code).
- */
-export default async function handler(req, res) {
-  // CORS headers — allow your Vercel domain and localhost for dev
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -13,13 +8,13 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "ANTHROPIC_API_KEY environment variable is not set." });
+    res.status(500).json({ error: "ANTHROPIC_API_KEY not set in Vercel." });
     return;
   }
 
   try {
     const upstream = await fetch("https://api.anthropic.com/v1/messages", {
-      method:  "POST",
+      method: "POST",
       headers: {
         "Content-Type":      "application/json",
         "x-api-key":         apiKey,
@@ -27,10 +22,9 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(req.body),
     });
-
     const data = await upstream.json();
     res.status(upstream.status).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+};
