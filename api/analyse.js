@@ -12,22 +12,6 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Parse body manually — Vercel does not auto-parse JSON
-  let body = req.body;
-  if (typeof body === "string") {
-    try { body = JSON.parse(body); } catch { res.status(400).json({ error: "Invalid JSON body" }); return; }
-  }
-  if (!body) {
-    await new Promise((resolve) => {
-      let raw = "";
-      req.on("data", chunk => raw += chunk);
-      req.on("end", () => {
-        try { body = JSON.parse(raw); } catch { body = {}; }
-        resolve();
-      });
-    });
-  }
-
   try {
     const upstream = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -36,11 +20,20 @@ module.exports = async function handler(req, res) {
         "x-api-key":         apiKey,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(req.body),
     });
     const data = await upstream.json();
     res.status(upstream.status).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+// Tell Vercel to allow up to 10MB request bodies
+module.exports.config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
 };
