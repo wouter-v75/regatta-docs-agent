@@ -1,5 +1,7 @@
 # ⛵ Regatta Abstract Agent
 
+
+
 AI-powered tool that reads Notice of Race, Sailing Instructions, Amendments and Notices and produces a structured abstract — with optional year-on-year rule change comparison.
 
 ## Deploy to Vercel (5 minutes)
