@@ -13,16 +13,15 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const body = req.body;
+    // Always read raw body — do not rely on Vercel's body parser
+    const raw = await new Promise((resolve, reject) => {
+      let data = "";
+      req.on("data", chunk => data += chunk);
+      req.on("end",  () => resolve(data));
+      req.on("error", reject);
+    });
 
-    if (!body || !body.model) {
-      res.status(400).json({
-        error: "Bad request body received by proxy",
-        received_type: typeof body,
-        received_keys: body ? Object.keys(body) : [],
-      });
-      return;
-    }
+    const body = JSON.parse(raw);
 
     const upstream = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -43,6 +42,7 @@ module.exports = async function handler(req, res) {
   }
 };
 
+// Disable body parser entirely so we can read the raw stream
 module.exports.config = {
-  api: { bodyParser: { sizeLimit: "10mb" } },
+  api: { bodyParser: false },
 };
