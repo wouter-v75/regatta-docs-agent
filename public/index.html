@@ -116,7 +116,7 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
   <!-- Upload area -->
   <div id="upload-area">
     <div class="zone-label"><span class="badge bc">THIS YEAR</span> Current Regatta Documents</div>
-    <div class="zone" id="zc" onclick="document.getElementById('ic').click()">
+    <div class="zone" id="zc">
       <input type="file" id="ic" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none" onchange="addFiles('c',this.files);this.value=''"/>
       <div id="zc-hint" class="zone-hint"><p>Drop NOR, SI, Amendments here or click to browse</p><small>PDF, TXT, DOC accepted</small></div>
       <div id="zc-list" class="file-list" style="display:none"></div>
@@ -125,7 +125,7 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
     <div class="divider"><div class="divline"></div><div class="divtxt">+ Optional: year comparison</div><div class="divline"></div></div>
 
     <div class="zone-label"><span class="badge bp">LAST YEAR</span> Previous Year's Sailing Instructions <span class="badge bo">Optional</span></div>
-    <div class="zone pzone" id="zp" onclick="document.getElementById('ip').click()">
+    <div class="zone pzone" id="zp">
       <input type="file" id="ip" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none" onchange="addFiles('p',this.files);this.value=''"/>
       <div id="zp-hint" class="zone-hint"><p style="color:#3a5a7a">Drop last year's SIs to get rule change diff</p><small>Highlights NEW / MODIFIED / REMOVED rules</small></div>
       <div id="zp-list" class="file-list" style="display:none"></div>
@@ -509,17 +509,26 @@ function printPDF() {
 '<div class="footer"><span>'+esc(r.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div>'+
 '</body></html>';
 
-  // Write to a new tab without affecting current page state
+  // Open in new tab using window.open with blob URL
   var blob = new Blob([html], {type:'text/html'});
   var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href   = url;
-  a.target = '_blank';
-  a.rel    = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+  var w    = window.open(url, '_blank');
+  if (!w) {
+    // Fallback: force download as HTML file
+    var tmp = document.createElement('a');
+    tmp.href = url;
+    tmp.setAttribute('download', (r.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_')+'_Abstract.html');
+    tmp.setAttribute('target', '_blank');
+    tmp.style.display = 'none';
+    document.body.appendChild(tmp);
+    tmp.click();
+    setTimeout(function(){
+      document.body.removeChild(tmp);
+      URL.revokeObjectURL(url);
+    }, 3000);
+  } else {
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+  }
 }
 </script>
 </body>
