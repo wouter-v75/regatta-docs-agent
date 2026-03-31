@@ -3,507 +3,507 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Regatta Abstract Agent</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:#08111e;font-family:Georgia,'Times New Roman',serif;color:#c8d8e8}
-.header{background:linear-gradient(180deg,#0d1e35 0%,#091628 100%);border-bottom:2px solid #c8a84b;padding:28px 32px 20px;position:relative;overflow:hidden}
-.header-wave{position:absolute;bottom:0;left:0;right:0;opacity:.08}
-.header-inner{display:flex;align-items:center;gap:16px;position:relative}
-.header-icon{font-size:36px;filter:drop-shadow(0 2px 8px rgba(200,168,75,.4))}
-.header h1{font-size:22px;font-weight:700;color:#e8d89a;letter-spacing:.04em;text-transform:uppercase}
-.header p{margin-top:4px;font-size:13px;color:#5a7a9a;font-style:italic}
-.main{padding:24px 28px;max-width:900px;margin:0 auto}
-.upload-label{font-size:11px;font-weight:700;color:#7a9bb8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+/* Header */
+.hdr{background:linear-gradient(180deg,#0d1e35,#091628);border-bottom:2px solid #c8a84b;padding:24px 32px 18px;display:flex;align-items:center;gap:16px}
+.hdr-icon{font-size:34px;filter:drop-shadow(0 2px 8px rgba(200,168,75,.4))}
+.hdr h1{font-size:21px;font-weight:700;color:#e8d89a;letter-spacing:.04em;text-transform:uppercase}
+.hdr p{margin-top:3px;font-size:12px;color:#5a7a9a;font-style:italic}
+/* Layout */
+.main{padding:24px 28px;max-width:880px;margin:0 auto}
+/* Upload */
+.zone-label{font-size:11px;font-weight:700;color:#7a9bb8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
-.badge-current{background:rgba(200,168,75,.18);color:#c8a84b;border:1px solid rgba(200,168,75,.35)}
-.badge-prev{background:rgba(100,140,200,.18);color:#7aabdc;border:1px solid rgba(100,140,200,.35)}
-.badge-opt{background:rgba(80,100,120,.3);color:#6a8aaa;border:1px solid rgba(80,100,120,.4)}
-.dropzone{border:2px dashed #1e3550;border-radius:12px;padding:22px 28px;text-align:center;cursor:pointer;background:rgba(255,255,255,.02);transition:all .2s;margin-bottom:8px}
-.dropzone.prev-zone{border-color:#1e3a5a}
-.dropzone.over{border-color:#c8a84b;background:rgba(200,168,75,.05)}
-.dropzone.prev-zone.over{border-color:#5a8abf;background:rgba(100,150,210,.05)}
-.dz-icon{font-size:32px;margin-bottom:10px;opacity:.5}
-.dz-text{color:#5a7a9a;font-size:13px;margin-bottom:4px}
-.dz-hint{color:#2a4560;font-size:11px}
-.file-list{text-align:left}
-.file-card{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 14px;margin-bottom:8px}
-.file-ext{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#0a1628;flex-shrink:0}
-.ext-current{background:linear-gradient(135deg,#c8a84b,#e8c96a)}
-.ext-prev{background:linear-gradient(135deg,#4a7aaa,#6a9aca)}
-.file-name{color:#e8edf5;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-size{color:#7a8fa8;font-size:11px}
-.btn-remove{background:none;border:none;color:#4a6080;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;margin-left:auto}
-.btn-remove:hover{color:#e05c5c}
-.add-more{text-align:center;margin-top:10px;font-size:12px;color:#3a6080;text-decoration:underline;cursor:pointer}
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0 16px}
-.divider-line{flex:1;height:1px;background:#1e3550}
-.divider-text{font-size:11px;color:#3a5570;text-transform:uppercase;letter-spacing:.08em}
-.btn-analyse{width:100%;padding:14px;margin-bottom:24px;background:linear-gradient(135deg,#c8a84b,#e8c96a);border:none;border-radius:10px;color:#08111e;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;box-shadow:0 4px 20px rgba(200,168,75,.3);font-family:inherit}
-.btn-analyse:hover{opacity:.9}
-.btn-pdf{flex:1;padding:11px;background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.35);border-radius:8px;color:#c8a84b;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.btn-pdf:hover{background:rgba(200,168,75,.15)}
-.btn-new{flex:1;padding:11px;background:transparent;border:1px solid #1e3550;border-radius:8px;color:#4a6a8a;font-size:13px;cursor:pointer;font-family:inherit}
-.btn-new:hover{border-color:#3a5a7a;color:#7a9ab8}
-.actions{display:flex;gap:10px;margin-top:4px}
-.loading{text-align:center;padding:40px 20px;background:rgba(255,255,255,.02);border-radius:12px;border:1px solid #1e3550;margin-bottom:24px;display:none}
-.loading-icon{font-size:32px;margin-bottom:16px;display:inline-block;animation:spin 2s linear infinite}
-.loading-text{color:#c8a84b;font-size:14px;font-style:italic}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.error-box{background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:10px;padding:16px;margin-bottom:24px;color:#e08080;display:none}
-#results{display:none}
-.title-row{display:flex;gap:12px;align-items:stretch;margin-bottom:16px}
-.title-card{flex:1;background:linear-gradient(135deg,#0d1e35,#111e32);border:1px solid #c8a84b;border-radius:12px;padding:20px 24px}
-.title-label{font-size:10px;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:.15em;margin-bottom:6px}
-.title-name{font-size:20px;font-weight:700;color:#e8d89a;margin-bottom:6px}
-.title-summary{font-size:12px;color:#4a6a8a;font-style:italic}
-.pdf-btn-card{flex-shrink:0;width:110px;background:linear-gradient(160deg,#1a2e50,#0d1e35);border:1px solid #c8a84b;border-radius:12px;color:#c8a84b;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px 8px;box-shadow:0 2px 12px rgba(200,168,75,.15);font-family:inherit}
-.pdf-btn-card:hover{background:linear-gradient(160deg,#243d65,#122540)}
-.pdf-btn-icon{font-size:26px}
-.pdf-btn-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;line-height:1.4}
-.legend{display:flex;gap:20px;margin-bottom:16px;font-size:11px;color:#4a6a8a;flex-wrap:wrap}
-.legend-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
-.legend-ref{font-size:10px;font-weight:700;color:#c8a84b;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.25);border-radius:3px;padding:0 5px}
-.section-card{background:rgba(255,255,255,.025);border:1px solid #1e3550;border-radius:12px;padding:20px 22px;margin-bottom:16px}
-.section-head{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #1e3550}
-.section-icon{font-size:18px}
-.section-label{font-size:13px;font-weight:800;color:#c8a84b;text-transform:uppercase;letter-spacing:.12em}
-.result-item{margin-bottom:14px}
-.result-label{font-size:11px;font-weight:700;color:#7a9bb8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:flex;align-items:center;gap:6px}
-.result-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.result-body{padding-left:11px}
-.bullet-list{list-style:none;margin:4px 0 0;padding:0}
-.bullet-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;padding-left:2px}
-.bullet-arrow{font-size:11px;margin-top:3px;flex-shrink:0}
-.bullet-text{font-size:13.5px;line-height:1.55}
-.bullet-text.found{color:#d4e8f5}
-.bullet-text.missing{color:#4a6080;font-style:italic}
-.ref-badge{margin-left:8px;display:inline-block;font-size:10.5px;font-weight:700;color:#c8a84b;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.25);border-radius:4px;padding:1px 6px;letter-spacing:.03em;vertical-align:middle;white-space:nowrap}
-.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px}
-.notes-card{background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.25);border-radius:10px;padding:16px 20px;margin-bottom:16px}
-.notes-head{font-size:11px;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.notes-text{font-size:13px;color:#b8c8d8;line-height:1.6}
-.changes-card{background:rgba(30,60,100,.25);border:1px solid #2a5080;border-radius:12px;padding:20px 22px;margin-bottom:16px}
-.changes-head{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #2a5080}
-.changes-head-label{font-size:13px;font-weight:800;color:#7aabdc;text-transform:uppercase;letter-spacing:.12em}
-.changes-head-badge{font-size:10px;background:rgba(100,160,220,.18);border:1px solid rgba(100,160,220,.4);color:#7aabdc;border-radius:10px;padding:2px 10px;font-weight:700}
-.change-item{margin-bottom:14px}
-.change-type-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.tag-new{background:rgba(60,200,100,.15);color:#4cc97a;border:1px solid rgba(60,200,100,.3);border-radius:4px;padding:1px 8px;font-size:10px;font-weight:700}
-.tag-modified{background:rgba(220,160,40,.15);color:#dcaa40;border:1px solid rgba(220,160,40,.3);border-radius:4px;padding:1px 8px;font-size:10px;font-weight:700}
-.tag-removed{background:rgba(220,80,80,.15);color:#e07070;border:1px solid rgba(220,80,80,.3);border-radius:4px;padding:1px 8px;font-size:10px;font-weight:700}
-.tag-unchanged{background:rgba(80,100,130,.2);color:#6a8aaa;border:1px solid rgba(80,100,130,.3);border-radius:4px;padding:1px 8px;font-size:10px;font-weight:700}
-.change-bullet{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;padding-left:11px;font-size:13.5px;line-height:1.55}
-.arrow-new{color:#4cc97a;font-size:11px;margin-top:3px;flex-shrink:0}
-.arrow-modified{color:#dcaa40;font-size:11px;margin-top:3px;flex-shrink:0}
-.arrow-removed{color:#e07070;font-size:11px;margin-top:3px;flex-shrink:0}
-.text-new{color:#a8e8c0}
-.text-modified{color:#f0d890}
-.text-removed{color:#e0a0a0;text-decoration:line-through;text-decoration-color:rgba(224,112,112,.5)}
-.change-prev{font-size:11.5px;color:#5a7a9a;font-style:italic;padding-left:19px;margin-bottom:6px}
+.bc{background:rgba(200,168,75,.18);color:#c8a84b;border:1px solid rgba(200,168,75,.35)}
+.bp{background:rgba(100,140,200,.18);color:#7aabdc;border:1px solid rgba(100,140,200,.35)}
+.bo{background:rgba(80,100,120,.3);color:#6a8aaa;border:1px solid rgba(80,100,120,.4)}
+.zone{border:2px dashed #1e3550;border-radius:12px;padding:20px 24px;text-align:center;cursor:pointer;background:rgba(255,255,255,.02);transition:all .2s;margin-bottom:8px;min-height:90px;display:flex;align-items:center;justify-content:center}
+.zone.pzone{border-color:#1e3a5a}
+.zone.over{border-color:#c8a84b;background:rgba(200,168,75,.05)}
+.zone.pzone.over{border-color:#5a8abf}
+.zone-hint p{color:#5a7a9a;font-size:13px;margin-bottom:4px}
+.zone-hint small{color:#2a4560;font-size:11px}
+.file-list{width:100%;text-align:left}
+.fc{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 13px;margin-bottom:7px}
+.fext{width:33px;height:33px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#0a1628;flex-shrink:0}
+.fext.ec{background:linear-gradient(135deg,#c8a84b,#e8c96a)}
+.fext.ep{background:linear-gradient(135deg,#4a7aaa,#6a9aca)}
+.fname{color:#e8edf5;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsize{color:#7a8fa8;font-size:11px}
+.frem{background:none;border:none;color:#4a6080;cursor:pointer;font-size:15px;padding:2px 6px;margin-left:auto}
+.frem:hover{color:#e05c5c}
+.addmore{margin-top:8px;font-size:12px;color:#3a6080;text-decoration:underline;cursor:pointer;text-align:center}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0 14px}
+.divline{flex:1;height:1px;background:#1e3550}
+.divtxt{font-size:10px;color:#3a5570;text-transform:uppercase;letter-spacing:.08em}
+/* Buttons */
+.btn-go{width:100%;padding:13px;margin:16px 0 0;background:linear-gradient(135deg,#c8a84b,#e8c96a);border:none;border-radius:10px;color:#08111e;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(200,168,75,.3)}
+.btn-go:hover{opacity:.9}
+/* Loading */
+.spinner{text-align:center;padding:50px 20px;display:none}
+.spin-icon{font-size:38px;display:inline-block;animation:spin 1.5s linear infinite}
+.spin-txt{color:#c8a84b;font-size:14px;font-style:italic;margin-top:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Error */
+.err{background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:10px;padding:14px;color:#e08080;display:none;margin-top:16px}
+/* Results */
+#out{display:none;margin-top:4px}
+.title-row{display:flex;gap:12px;align-items:stretch;margin-bottom:14px}
+.title-card{flex:1;background:linear-gradient(135deg,#0d1e35,#111e32);border:1px solid #c8a84b;border-radius:12px;padding:18px 22px}
+.t-lbl{font-size:10px;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:.15em;margin-bottom:5px}
+.t-name{font-size:19px;font-weight:700;color:#e8d89a;margin-bottom:5px}
+.t-sum{font-size:12px;color:#4a6a8a;font-style:italic}
+.pdf-card{flex-shrink:0;width:100px;background:linear-gradient(160deg,#1a2e50,#0d1e35);border:1px solid #c8a84b;border-radius:12px;color:#c8a84b;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px;font-family:inherit}
+.pdf-card:hover{background:linear-gradient(160deg,#243d65,#122540)}
+.pdf-icon{font-size:24px}
+.pdf-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;line-height:1.4}
+.legend{display:flex;gap:16px;margin-bottom:14px;font-size:11px;color:#4a6a8a;flex-wrap:wrap}
+.ldot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+.lref{font-size:10px;font-weight:700;color:#c8a84b;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.25);border-radius:3px;padding:0 5px}
+/* Section cards */
+.scard{background:rgba(255,255,255,.025);border:1px solid #1e3550;border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.shead{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #1e3550}
+.sico{font-size:17px}
+.slbl{font-size:12px;font-weight:800;color:#c8a84b;text-transform:uppercase;letter-spacing:.12em}
+.ritem{margin-bottom:12px}
+.rlbl{font-size:10px;font-weight:700;color:#7a9bb8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.rdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.rbody{padding-left:10px}
+ul.blist{list-style:none;margin:3px 0 0;padding:0}
+ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
+.barr{font-size:10px;margin-top:3px;flex-shrink:0}
+.btxt{font-size:13px;line-height:1.5}
+.btxt.f{color:#d4e8f5}
+.btxt.m{color:#4a6080;font-style:italic}
+.rbadge{margin-left:7px;display:inline-block;font-size:10px;font-weight:700;color:#c8a84b;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.25);border-radius:4px;padding:1px 5px;vertical-align:middle;white-space:nowrap}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:14px}
+/* Notes */
+.ncard{background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.25);border-radius:10px;padding:14px 18px;margin-bottom:14px}
+.nhead{font-size:11px;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.ntxt{font-size:13px;color:#b8c8d8;line-height:1.6}
+/* Changes */
+.chcard{background:rgba(20,50,90,.35);border:1px solid #2a5080;border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.chhead{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #2a5080}
+.chlbl{font-size:12px;font-weight:800;color:#7aabdc;text-transform:uppercase;letter-spacing:.12em}
+.chbadge{font-size:10px;background:rgba(100,160,220,.18);border:1px solid rgba(100,160,220,.4);color:#7aabdc;border-radius:10px;padding:2px 9px;font-weight:700}
+.chitem{margin-bottom:12px;padding-left:2px}
+.chtlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.tgnew{background:rgba(60,200,100,.15);color:#4cc97a;border:1px solid rgba(60,200,100,.3);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700}
+.tgmod{background:rgba(220,160,40,.15);color:#dcaa40;border:1px solid rgba(220,160,40,.3);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700}
+.tgrem{background:rgba(220,80,80,.15);color:#e07070;border:1px solid rgba(220,80,80,.3);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700}
+.chsum{font-size:13px;color:#c8e0f8;line-height:1.5;padding-left:10px}
+.chprev{font-size:11px;color:#5a7a9a;font-style:italic;padding-left:10px;margin-top:3px}
+/* Actions */
+.acts{display:flex;gap:10px;margin-top:6px}
+.act-pdf{flex:1;padding:11px;background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.35);border-radius:8px;color:#c8a84b;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.act-pdf:hover{background:rgba(200,168,75,.15)}
+.act-new{flex:1;padding:11px;background:transparent;border:1px solid #1e3550;border-radius:8px;color:#4a6a8a;font-size:13px;cursor:pointer;font-family:inherit}
+.act-new:hover{border-color:#3a5a7a;color:#7a9ab8}
 </style>
 </head>
 <body>
-<div class="header">
-  <svg class="header-wave" viewBox="0 0 1200 40" preserveAspectRatio="none" height="40">
-    <path d="M0,20 C150,35 300,5 450,20 C600,35 750,5 900,20 C1050,35 1150,10 1200,20 L1200,40 L0,40 Z" fill="#4a90d9"/>
-  </svg>
-  <div class="header-inner">
-    <div class="header-icon">⛵</div>
-    <div>
-      <h1>Regatta Abstract Agent</h1>
-      <p>Notice of Race · Sailing Instructions · Amendments · Notices</p>
-    </div>
-  </div>
+
+<div class="hdr">
+  <div class="hdr-icon">⛵</div>
+  <div><h1>Regatta Abstract Agent</h1><p>Notice of Race · Sailing Instructions · Amendments · Notices</p></div>
 </div>
 
 <div class="main">
+  <!-- Upload area -->
   <div id="upload-area">
-    <div class="upload-label"><span class="badge badge-current">THIS YEAR</span> Current Regatta Documents</div>
-    <div class="dropzone" id="dz-current">
-      <input type="file" id="fi-current" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none"/>
-      <div id="dz-current-empty"><div class="dz-icon">📄</div><div class="dz-text">Drop this year's NOR, SI, Amendments here or click to browse</div><div class="dz-hint">PDF, TXT, DOC files accepted</div></div>
-      <div id="dz-current-files" class="file-list" style="display:none"></div>
+    <div class="zone-label"><span class="badge bc">THIS YEAR</span> Current Regatta Documents</div>
+    <div class="zone" id="zc" onclick="document.getElementById('ic').click()">
+      <input type="file" id="ic" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none" onchange="addFiles('c',this.files);this.value=''"/>
+      <div id="zc-hint" class="zone-hint"><p>Drop NOR, SI, Amendments here or click to browse</p><small>PDF, TXT, DOC accepted</small></div>
+      <div id="zc-list" class="file-list" style="display:none"></div>
     </div>
 
-    <div class="divider"><div class="divider-line"></div><div class="divider-text">+ Optional comparison</div><div class="divider-line"></div></div>
+    <div class="divider"><div class="divline"></div><div class="divtxt">+ Optional: year comparison</div><div class="divline"></div></div>
 
-    <div class="upload-label"><span class="badge badge-prev">LAST YEAR</span> Previous Year's Sailing Instructions <span class="badge badge-opt">Optional</span></div>
-    <div class="dropzone prev-zone" id="dz-prev">
-      <input type="file" id="fi-prev" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none"/>
-      <div id="dz-prev-empty"><div class="dz-icon" style="opacity:.35">📂</div><div class="dz-text" style="color:#3a5a7a">Drop last year's SIs here to compare rule changes</div><div class="dz-hint">When provided, the agent highlights new, modified and removed rules</div></div>
-      <div id="dz-prev-files" class="file-list" style="display:none"></div>
+    <div class="zone-label"><span class="badge bp">LAST YEAR</span> Previous Year's Sailing Instructions <span class="badge bo">Optional</span></div>
+    <div class="zone pzone" id="zp" onclick="document.getElementById('ip').click()">
+      <input type="file" id="ip" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none" onchange="addFiles('p',this.files);this.value=''"/>
+      <div id="zp-hint" class="zone-hint"><p style="color:#3a5a7a">Drop last year's SIs to get rule change diff</p><small>Highlights NEW / MODIFIED / REMOVED rules</small></div>
+      <div id="zp-list" class="file-list" style="display:none"></div>
     </div>
 
-    <div style="height:20px"></div>
-    <button class="btn-analyse" id="btn-analyse" style="display:none" onclick="analyzeDocuments()">⚓ Analyse Documents</button>
+    <button class="btn-go" id="btn-go" style="display:none" onclick="run()">⚓ Analyse Documents</button>
   </div>
 
-  <div class="loading" id="loading">
-    <div class="loading-icon">🧭</div>
-    <div class="loading-text" id="loading-text">Processing...</div>
+  <!-- Loading -->
+  <div class="spinner" id="spinner">
+    <div class="spin-icon">🧭</div>
+    <div class="spin-txt" id="spin-txt">Processing…</div>
   </div>
-  <div class="error-box" id="error-box"></div>
-  <div id="results"></div>
+
+  <!-- Error -->
+  <div class="err" id="err"></div>
+
+  <!-- Results -->
+  <div id="out"></div>
 </div>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────────
-var currentFiles = [];
-var prevFiles = [];
+// File stores
+var CF = [], PF = [];
 
-// ── Prompts ───────────────────────────────────────────────────────────────────
-var PROMPT_BASE = 'You are a specialist in sailing regatta documentation.\n\nExtract specific information from the provided regatta documents into a structured abstract.\n\nRULES:\n- Every "bullets" array: objects with "text" (finding) and "ref" (section e.g. "SI 3.1").\n- If not found: "found":false, bullets:[{"text":"Not specified","ref":""}].\n- One concise sentence per bullet. Copy dates/times exactly.\n\nReturn ONLY valid JSON, no markdown:\n{"regattaName":"","documentsSummary":"","rules":{"changingOfSails":{"found":true,"bullets":[{"text":"","ref":"SI 2.1"}]},"ownerDriver":{"found":true,"bullets":[{"text":"","ref":"NOR 3.2"}]}},"schedule":{"ratingDeadline":{"found":true,"bullets":[{"text":"","ref":"NOR 5.1"}]},"registrationTimes":{"found":true,"bullets":[{"text":"","ref":"NOR 5.2"}]},"registrationDeadline":{"found":true,"bullets":[{"text":"","ref":"NOR 5.3"}]},"skippersBriefing":{"found":true,"bullets":[{"text":"","ref":"SI 4.1"}]},"dailyAmendmentDeadline":{"found":true,"bullets":[{"text":"","ref":"SI 4.2"}]},"dailyScheduleChangesDeadline":{"found":true,"bullets":[{"text":"","ref":"SI 4.3"}]}},"scoring":{"racesAndType":{"found":true,"bullets":[{"text":"","ref":"SI 10.1"}]},"discards":{"found":true,"bullets":[{"text":"","ref":"SI 10.3"}]}},"vhfChannels":{"found":true,"bullets":[{"text":"","ref":"SI 6.1"}]},"ocsRules":{"found":true,"bullets":[{"text":"","ref":"SI 11.1"}]},"penaltyTurns":{"found":true,"bullets":[{"text":"","ref":"SI 12.1"}]},"notes":"None"}';
-
-var PROMPT_COMPARE = 'You are a specialist in sailing regatta documentation.\n\nYou will receive CURRENT YEAR and PREVIOUS YEAR documents. Do two things:\nA) Extract the current year abstract.\nB) Compare years and list every NEW, MODIFIED, or REMOVED rule/procedure.\n\nFor abstract: same rules as above.\nFor changes: "changes" array of {topic, type:"new"|"modified"|"removed", current, previous, summary}.\n\nReturn ONLY valid JSON, no markdown:\n{"regattaName":"","documentsSummary":"","rules":{"changingOfSails":{"found":true,"bullets":[{"text":"","ref":"SI 2.1"}]},"ownerDriver":{"found":true,"bullets":[{"text":"","ref":"NOR 3.2"}]}},"schedule":{"ratingDeadline":{"found":true,"bullets":[{"text":"","ref":"NOR 5.1"}]},"registrationTimes":{"found":true,"bullets":[{"text":"","ref":"NOR 5.2"}]},"registrationDeadline":{"found":true,"bullets":[{"text":"","ref":"NOR 5.3"}]},"skippersBriefing":{"found":true,"bullets":[{"text":"","ref":"SI 4.1"}]},"dailyAmendmentDeadline":{"found":true,"bullets":[{"text":"","ref":"SI 4.2"}]},"dailyScheduleChangesDeadline":{"found":true,"bullets":[{"text":"","ref":"SI 4.3"}]}},"scoring":{"racesAndType":{"found":true,"bullets":[{"text":"","ref":"SI 10.1"}]},"discards":{"found":true,"bullets":[{"text":"","ref":"SI 10.3"}]}},"vhfChannels":{"found":true,"bullets":[{"text":"","ref":"SI 6.1"}]},"ocsRules":{"found":true,"bullets":[{"text":"","ref":"SI 11.1"}]},"penaltyTurns":{"found":true,"bullets":[{"text":"","ref":"SI 12.1"}]},"notes":"None","changes":[{"topic":"","type":"modified","current":"","previous":"","summary":""}]}';
-
-var SECTIONS = [
-  {key:'rules',label:'RULES',icon:'⚖',subs:[{key:'changingOfSails',label:'Changing of Sails'},{key:'ownerDriver',label:'Owner-Driver Rule'}]},
-  {key:'schedule',label:'SCHEDULE',icon:'📅',subs:[{key:'ratingDeadline',label:'Rating Deadline'},{key:'registrationTimes',label:'Registration Times'},{key:'registrationDeadline',label:'Registration Deadline'},{key:'skippersBriefing',label:'Skippers Briefing'},{key:'dailyAmendmentDeadline',label:'Daily Amendment Deadline'},{key:'dailyScheduleChangesDeadline',label:'Daily Schedule Changes Deadline'}]},
-  {key:'scoring',label:'SCORING',icon:'🏆',subs:[{key:'racesAndType',label:'Number of Races & Type'},{key:'discards',label:'Discards'}]}
-];
-var TOP = [
-  {key:'vhfChannels',label:'VHF CHANNELS',icon:'📡'},
-  {key:'ocsRules',label:'OCS RULES',icon:'🚩'},
-  {key:'penaltyTurns',label:'PENALTY TURNS',icon:'🔄'}
-];
-
-// ── Dropzone setup ────────────────────────────────────────────────────────────
-function initDropzone(dzId, inputId, emptyId, filesId, store, extCls) {
-  var dz    = document.getElementById(dzId);
-  var input = document.getElementById(inputId);
-  var empty = document.getElementById(emptyId);
-  var list  = document.getElementById(filesId);
-
-  // Click to browse
-  dz.addEventListener('click', function(e) {
-    if (e.target.classList.contains('add-more')) return; // handled separately
-    input.click();
+// Drag support
+['zc','zp'].forEach(function(id) {
+  var el = document.getElementById(id);
+  el.addEventListener('dragover', function(e){ e.preventDefault(); el.classList.add('over'); });
+  el.addEventListener('dragleave', function(){ el.classList.remove('over'); });
+  el.addEventListener('drop', function(e){
+    e.preventDefault(); el.classList.remove('over');
+    var which = id==='zc' ? 'c' : 'p';
+    addFiles(which, e.dataTransfer.files);
   });
+});
 
-  // File selected via dialog
-  input.addEventListener('change', function(e) {
-    addFiles(store, e.target.files);
-    renderFiles(store, list, empty, dz, extCls);
-    input.value = ''; // reset so same file can be re-added
+function addFiles(which, fileList) {
+  var store = which==='c' ? CF : PF;
+  var existing = store.map(function(f){return f.name;});
+  Array.from(fileList).forEach(function(f){
+    if (existing.indexOf(f.name) < 0) store.push(f);
   });
-
-  // Drag events
-  dz.addEventListener('dragover',  function(e) { e.preventDefault(); dz.classList.add('over'); });
-  dz.addEventListener('dragleave', function()  { dz.classList.remove('over'); });
-  dz.addEventListener('drop', function(e) {
-    e.preventDefault();
-    dz.classList.remove('over');
-    addFiles(store, e.dataTransfer.files);
-    renderFiles(store, list, empty, dz, extCls);
-  });
-
-  // "Add more" link inside file list
-  list.addEventListener('click', function(e) {
-    if (e.target.classList.contains('add-more')) { e.stopPropagation(); input.click(); }
-  });
+  redraw(which);
 }
 
-function addFiles(store, fileList) {
-  var existing = store.map(function(f){ return f.name; });
-  Array.from(fileList).forEach(function(f) {
-    if (existing.indexOf(f.name) === -1) store.push(f);
-  });
-  updateBtn();
+function removeFile(which, name) {
+  var store = which==='c' ? CF : PF;
+  var idx = store.findIndex(function(f){return f.name===name;});
+  if (idx>-1) store.splice(idx,1);
+  redraw(which);
 }
 
-function removeFile(store, name, dzId, inputId, emptyId, filesId, extCls) {
-  var idx = store.findIndex(function(f){ return f.name === name; });
-  if (idx > -1) store.splice(idx, 1);
-  var dz    = document.getElementById(dzId);
-  var input = document.getElementById(inputId);
-  var empty = document.getElementById(emptyId);
-  var list  = document.getElementById(filesId);
-  renderFiles(store, list, empty, dz, extCls);
-}
-
-function renderFiles(store, list, empty, dz, extCls) {
+function redraw(which) {
+  var store = which==='c' ? CF : PF;
+  var hint  = document.getElementById(which==='c'?'zc-hint':'zp-hint');
+  var list  = document.getElementById(which==='c'?'zc-list':'zp-list');
+  var ecls  = which==='c' ? 'ec' : 'ep';
   if (!store.length) {
-    empty.style.display = '';
-    list.style.display  = 'none';
+    hint.style.display=''; list.style.display='none';
   } else {
-    empty.style.display = 'none';
-    list.style.display  = '';
-    var storeVar = (extCls === 'ext-current') ? 'currentFiles' : 'prevFiles';
-    var dzId    = dz.id;
-    var inputId = (extCls === 'ext-current') ? 'fi-current' : 'fi-prev';
-    var emptyId = (extCls === 'ext-current') ? 'dz-current-empty' : 'dz-prev-empty';
-    var filesId = list.id;
-    list.innerHTML = store.map(function(f) {
-      return '<div class="file-card">' +
-        '<div class="file-ext ' + extCls + '">' + esc(f.name.split('.').pop().toUpperCase()) + '</div>' +
-        '<div style="flex:1;min-width:0">' +
-          '<div class="file-name">' + esc(f.name) + '</div>' +
-          '<div class="file-size">' + (f.size/1024).toFixed(1) + ' KB</div>' +
-        '</div>' +
-        '<button class="btn-remove" onclick="removeFile(' + storeVar + ',\'' + esc(f.name) + '\',\'' + dzId + '\',\'' + inputId + '\',\'' + emptyId + '\',\'' + filesId + '\',\'' + extCls + '\')">×</button>' +
+    hint.style.display='none'; list.style.display='';
+    list.innerHTML = store.map(function(f){
+      return '<div class="fc">'+
+        '<div class="fext '+ecls+'">'+esc(f.name.split('.').pop().toUpperCase())+'</div>'+
+        '<div style="flex:1;min-width:0"><div class="fname">'+esc(f.name)+'</div><div class="fsize">'+
+        (f.size/1024).toFixed(1)+' KB</div></div>'+
+        '<button class="frem" onclick="removeFile(\''+which+'\',\''+esc(f.name)+'\')">×</button>'+
       '</div>';
-    }).join('') + '<div class="add-more">+ Add more documents</div>';
+    }).join('') + '<div class="addmore" onclick="document.getElementById(\''+(which==='c'?'ic':'ip')+'\').click()">+ Add more</div>';
   }
-  updateBtn();
+  document.getElementById('btn-go').style.display = CF.length ? 'block' : 'none';
 }
 
-function updateBtn() {
-  document.getElementById('btn-analyse').style.display = currentFiles.length ? 'block' : 'none';
-}
-
-// Init both dropzones
-initDropzone('dz-current','fi-current','dz-current-empty','dz-current-files', currentFiles,'ext-current');
-initDropzone('dz-prev',   'fi-prev',   'dz-prev-empty',   'dz-prev-files',    prevFiles,   'ext-prev');
-
-// ── PDF.js ────────────────────────────────────────────────────────────────────
+// PDF.js
 function loadPdfJs() {
-  return new Promise(function(res, rej) {
-    if (window.pdfjsLib) { res(window.pdfjsLib); return; }
-    var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-    s.onload = function() {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  return new Promise(function(res,rej){
+    if (window.pdfjsLib){res(window.pdfjsLib);return;}
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload=function(){
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       res(window.pdfjsLib);
     };
-    s.onerror = function() { rej(new Error('Failed to load PDF.js')); };
+    s.onerror=function(){rej(new Error('PDF.js load failed'));};
     document.head.appendChild(s);
   });
 }
-
-async function extractPdf(file) {
-  var lib = await loadPdfJs();
-  var buf = await file.arrayBuffer();
-  var pdf = await lib.getDocument({ data: buf, verbosity: 0 }).promise;
-  var text = '';
-  for (var i = 1; i <= pdf.numPages; i++) {
-    var page = await pdf.getPage(i);
-    var c = await page.getTextContent();
-    var s = c.items.map(function(it){ return it.str; }).join(' ').trim();
-    if (s) text += '\n[Page ' + i + ']\n' + s;
+async function pdfText(file){
+  var lib=await loadPdfJs();
+  var pdf=await lib.getDocument({data:await file.arrayBuffer(),verbosity:0}).promise;
+  var out='';
+  for(var i=1;i<=pdf.numPages;i++){
+    var pg=await pdf.getPage(i);
+    var c=await pg.getTextContent();
+    var s=c.items.map(function(it){return it.str;}).join(' ').trim();
+    if(s) out+='\n[p'+i+']\n'+s;
   }
-  if (!text.trim()) throw new Error('No text found in "' + file.name + '". PDF may be image-based — try a .txt file instead.');
-  return text;
+  if(!out.trim()) throw new Error('"'+file.name+'" has no extractable text. Try a .txt copy.');
+  return out;
 }
-
-function readText(file) {
-  return new Promise(function(res, rej) {
-    var r = new FileReader();
-    r.onload = function() { res(r.result); };
-    r.onerror = function() { rej(new Error('Failed to read ' + file.name)); };
+function readTxt(file){
+  return new Promise(function(res,rej){
+    var r=new FileReader();
+    r.onload=function(){res(r.result);};
+    r.onerror=function(){rej(new Error('Read failed: '+file.name));};
     r.readAsText(file);
   });
 }
 
-// ── Analyse ───────────────────────────────────────────────────────────────────
-async function analyzeDocuments() {
-  if (!currentFiles.length) return;
-  document.getElementById('upload-area').style.display = 'none';
-  document.getElementById('loading').style.display = '';
-  document.getElementById('error-box').style.display = 'none';
-  document.getElementById('results').style.display = 'none';
+// Prompts
+var SYS = 'You are a sailing regatta documentation specialist. Extract the requested information and return ONLY a single JSON object — no markdown, no explanation.\n\nJSON structure:\n{"regattaName":"...","documentsSummary":"...","rules":{"changingOfSails":{"found":true,"bullets":[{"text":"...","ref":"SI 2.1"}]},"ownerDriver":{"found":true,"bullets":[{"text":"...","ref":"NOR 3.2"}]}},"schedule":{"ratingDeadline":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.1"}]},"registrationTimes":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.2"}]},"registrationDeadline":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.3"}]},"skippersBriefing":{"found":true,"bullets":[{"text":"...","ref":"SI 4.1"}]},"dailyAmendmentDeadline":{"found":true,"bullets":[{"text":"...","ref":"SI 4.2"}]},"dailyScheduleChangesDeadline":{"found":true,"bullets":[{"text":"...","ref":"SI 4.3"}]}},"scoring":{"racesAndType":{"found":true,"bullets":[{"text":"...","ref":"SI 10.1"},{"text":"...","ref":"SI 10.2"}]},"discards":{"found":true,"bullets":[{"text":"...","ref":"SI 10.3"}]}},"vhfChannels":{"found":true,"bullets":[{"text":"...","ref":"SI 6.1"}]},"ocsRules":{"found":true,"bullets":[{"text":"...","ref":"SI 11.1"}]},"penaltyTurns":{"found":true,"bullets":[{"text":"...","ref":"SI 12.1"}]},"notes":"None"}\n\nIf a topic is not found set found:false and bullets:[{"text":"Not specified","ref":""}]. Include section reference for every found item.';
+
+var SYS2 = SYS + '\n\nAlso compare CURRENT YEAR vs PREVIOUS YEAR and add a "changes" array: [{"topic":"...","type":"new|modified|removed","current":"...","previous":"...","summary":"..."}]. Be thorough — check all sections.';
+
+// Main analyse function
+async function run() {
+  if (!CF.length) return;
+  document.getElementById('upload-area').style.display='none';
+  document.getElementById('spinner').style.display='';
+  document.getElementById('err').style.display='none';
+  document.getElementById('out').style.display='none';
+  document.getElementById('out').innerHTML='';
 
   try {
-    var currentText = '';
-    for (var i = 0; i < currentFiles.length; i++) {
-      var f = currentFiles[i];
-      document.getElementById('loading-text').textContent = 'Reading ' + f.name + '…';
-      var ext = f.name.split('.').pop().toLowerCase();
-      var txt = (ext === 'pdf') ? await extractPdf(f) : await readText(f);
-      currentText += '\n\n=== DOCUMENT: ' + f.name + ' ===\n' + txt + '\n=== END: ' + f.name + ' ===';
+    // Read files
+    var curTxt='';
+    for(var i=0;i<CF.length;i++){
+      spin('Reading '+CF[i].name+'…');
+      var ext=CF[i].name.split('.').pop().toLowerCase();
+      curTxt+='\n\n=== '+CF[i].name+' ===\n'+(ext==='pdf'?await pdfText(CF[i]):await readTxt(CF[i]));
+    }
+    var prevTxt='';
+    for(var j=0;j<PF.length;j++){
+      spin('Reading (prev) '+PF[j].name+'…');
+      var pext=PF[j].name.split('.').pop().toLowerCase();
+      prevTxt+='\n\n=== '+PF[j].name+' ===\n'+(pext==='pdf'?await pdfText(PF[j]):await readTxt(PF[j]));
     }
 
-    var prevText = '';
-    for (var j = 0; j < prevFiles.length; j++) {
-      var pf = prevFiles[j];
-      document.getElementById('loading-text').textContent = 'Reading previous year: ' + pf.name + '…';
-      var pext = pf.name.split('.').pop().toLowerCase();
-      var ptxt = (pext === 'pdf') ? await extractPdf(pf) : await readText(pf);
-      prevText += '\n\n=== DOCUMENT: ' + pf.name + ' ===\n' + ptxt + '\n=== END: ' + pf.name + ' ===';
-    }
-
-    document.getElementById('loading-text').textContent = 'Analysing with AI…';
-
-    var withComp = prevFiles.length > 0;
+    var withComp = PF.length>0;
     var userMsg = withComp
-      ? '=== CURRENT YEAR ===\n' + currentText + '\n\n=== PREVIOUS YEAR ===\n' + prevText + '\n\nAnalyse both sets and return only the JSON.'
-      : currentText + '\n\nAnalyse the documents above and return only the JSON.';
+      ? 'CURRENT YEAR DOCUMENTS:\n'+curTxt+'\n\nPREVIOUS YEAR DOCUMENTS:\n'+prevTxt+'\n\nReturn the JSON only.'
+      : curTxt+'\n\nReturn the JSON only.';
 
-    var resp = await fetch('/api/analyse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        system: withComp ? PROMPT_COMPARE : PROMPT_BASE,
-        messages: [{ role: 'user', content: [{ type: 'text', text: userMsg }] }]
+    spin('Asking Claude…');
+
+    var resp = await fetch('/api/analyse',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:4096,
+        system: withComp ? SYS2 : SYS,
+        messages:[{role:'user',content:userMsg}]
       })
     });
 
     var rt = await resp.text();
-    if (!resp.ok) throw new Error('API error ' + resp.status + ': ' + rt.substring(0, 200));
+    if (!resp.ok) throw new Error('API '+resp.status+': '+rt.substring(0,300));
 
-    var data = JSON.parse(rt);
-    if (!data.content) throw new Error('Unexpected API response: ' + rt.substring(0, 200));
+    spin('Parsing response…');
+    var apiData = JSON.parse(rt);
+    if (!apiData.content) throw new Error('No content in response: '+rt.substring(0,200));
 
-    var raw = data.content.map(function(b){ return b.text || ''; }).join('').replace(/```json\n?|```/g, '').trim();
+    var raw = '';
+    apiData.content.forEach(function(b){ raw += (b.text||''); });
 
-    // Attempt JSON repair if truncated
-    var jsonStr = raw;
-    try { JSON.parse(jsonStr); } catch(e) {
-      var closers = []; var inS = false; var esc2 = false;
-      for (var ci = 0; ci < jsonStr.length; ci++) {
-        var ch = jsonStr[ci];
-        if (esc2) { esc2 = false; continue; }
-        if (ch === '\\' && inS) { esc2 = true; continue; }
-        if (ch === '"') { inS = !inS; continue; }
-        if (!inS) {
-          if (ch === '{' || ch === '[') closers.push(ch === '{' ? '}' : ']');
-          if (ch === '}' || ch === ']') closers.pop();
-        }
-      }
-      if (inS) jsonStr += '"';
-      jsonStr += closers.reverse().join('');
+    // Strip markdown fences if present
+    raw = raw.trim();
+    if (raw.startsWith('```')) {
+      raw = raw.replace(/^```[a-z]*\n?/,'').replace(/\n?```$/,'').trim();
     }
 
-    var parsed = JSON.parse(jsonStr);
-    parsed._withComp = withComp;
-    renderResults(parsed);
+    // Parse — if it fails try to extract JSON object
+    var parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch(e1) {
+      var start = raw.indexOf('{');
+      var end   = raw.lastIndexOf('}');
+      if (start>=0 && end>start) {
+        try { parsed = JSON.parse(raw.substring(start, end+1)); }
+        catch(e2) { throw new Error('Could not parse AI response as JSON. Raw: '+raw.substring(0,200)); }
+      } else {
+        throw new Error('No JSON object found in response. Raw: '+raw.substring(0,200));
+      }
+    }
+
+    parsed._comp = withComp;
+    window._result = parsed;
+    showResults(parsed);
 
   } catch(e) {
-    document.getElementById('error-box').style.display = '';
-    document.getElementById('error-box').innerHTML = '<strong>Error:</strong> ' + esc(e.message);
-    document.getElementById('upload-area').style.display = '';
+    var errEl = document.getElementById('err');
+    errEl.style.display='';
+    errEl.innerHTML='<strong>Error:</strong> '+esc(e.message);
+    document.getElementById('upload-area').style.display='';
   } finally {
-    document.getElementById('loading').style.display = 'none';
+    document.getElementById('spinner').style.display='none';
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function spin(msg){ document.getElementById('spin-txt').textContent=msg; }
 
-function renderBullets(bullets, found) {
-  if (!bullets || !bullets.length) return '<li class="bullet-item"><span class="bullet-arrow" style="color:#4a6080">–</span><span class="bullet-text missing">Not specified</span></li>';
-  return bullets.map(function(b) {
-    var ref = (b.ref && found) ? '<span class="ref-badge">' + esc(b.ref) + '</span>' : '';
-    return '<li class="bullet-item"><span class="bullet-arrow" style="color:' + (found ? '#4cc97a' : '#4a6080') + '">' + (found ? '▸' : '–') + '</span><span class="bullet-text ' + (found ? 'found' : 'missing') + '">' + esc(b.text) + ref + '</span></li>';
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// Render helpers
+var SECS = [
+  {key:'rules',lbl:'RULES',ico:'⚖',subs:[{key:'changingOfSails',lbl:'Changing of Sails'},{key:'ownerDriver',lbl:'Owner-Driver Rule'}]},
+  {key:'schedule',lbl:'SCHEDULE',ico:'📅',subs:[{key:'ratingDeadline',lbl:'Rating Deadline'},{key:'registrationTimes',lbl:'Registration Times'},{key:'registrationDeadline',lbl:'Registration Deadline'},{key:'skippersBriefing',lbl:'Skippers Briefing'},{key:'dailyAmendmentDeadline',lbl:'Daily Amendment Deadline'},{key:'dailyScheduleChangesDeadline',lbl:'Daily Schedule Changes Deadline'}]},
+  {key:'scoring',lbl:'SCORING',ico:'🏆',subs:[{key:'racesAndType',lbl:'Number of Races & Type'},{key:'discards',lbl:'Discards'}]}
+];
+var TOPS = [
+  {key:'vhfChannels',lbl:'VHF CHANNELS',ico:'📡'},
+  {key:'ocsRules',lbl:'OCS RULES',ico:'🚩'},
+  {key:'penaltyTurns',lbl:'PENALTY TURNS',ico:'🔄'}
+];
+
+function bullets(arr, found) {
+  if (!arr||!arr.length) return '<li style="display:flex;gap:7px;margin-bottom:5px"><span class="barr" style="color:#4a6080">–</span><span class="btxt m">Not specified</span></li>';
+  return arr.map(function(b){
+    var ref = (b.ref&&found) ? '<span class="rbadge">'+esc(b.ref)+'</span>' : '';
+    return '<li style="display:flex;align-items:flex-start;gap:7px;margin-bottom:6px">'+
+      '<span class="barr" style="color:'+(found?'#4cc97a':'#4a6080')+'">'+(found?'▸':'–')+'</span>'+
+      '<span class="btxt '+(found?'f':'m')+'">'+esc(b.text)+ref+'</span></li>';
   }).join('');
 }
 
-function renderGrouped(cfg, data) {
+function renderSec(cfg, data) {
   if (!data) return '';
-  var rows = cfg.subs.map(function(sub) {
-    var item = data[sub.key]; if (!item) return '';
-    return '<div class="result-item"><div class="result-label"><div class="result-dot" style="background:' + (item.found ? '#4cc97a' : '#4a6080') + '"></div>' + esc(sub.label) + '</div><div class="result-body"><ul class="bullet-list">' + renderBullets(item.bullets, item.found) + '</ul></div></div>';
+  var rows = cfg.subs.map(function(sub){
+    var item = data[sub.key]; if(!item) return '';
+    return '<div class="ritem">'+
+      '<div class="rlbl"><div class="rdot" style="background:'+(item.found?'#4cc97a':'#4a6080')+'"></div>'+esc(sub.lbl)+'</div>'+
+      '<div class="rbody"><ul class="blist">'+bullets(item.bullets,item.found)+'</ul></div></div>';
   }).join('');
-  return '<div class="section-card"><div class="section-head"><span class="section-icon">' + cfg.icon + '</span><span class="section-label">' + cfg.label + '</span></div>' + rows + '</div>';
+  return '<div class="scard"><div class="shead"><span class="sico">'+cfg.ico+'</span><span class="slbl">'+cfg.lbl+'</span></div>'+rows+'</div>';
 }
 
 function renderTop(sec, data) {
   if (!data) return '';
-  return '<div class="section-card"><div class="section-head"><span class="section-icon">' + sec.icon + '</span><span class="section-label">' + sec.label + '</span></div><ul class="bullet-list">' + renderBullets(data.bullets, data.found) + '</ul></div>';
+  return '<div class="scard"><div class="shead"><span class="sico">'+sec.ico+'</span><span class="slbl">'+sec.lbl+'</span></div><ul class="blist" style="padding-left:2px">'+bullets(data.bullets,data.found)+'</ul></div>';
 }
 
 function renderChanges(changes) {
-  if (!changes || !changes.length) return '';
-  var typeInfo = {
-    new:      {tag:'NEW',      cls:'tag-new',      arrow:'✦', aCls:'arrow-new',      tCls:'text-new'},
-    modified: {tag:'MODIFIED', cls:'tag-modified', arrow:'◈', aCls:'arrow-modified', tCls:'text-modified'},
-    removed:  {tag:'REMOVED',  cls:'tag-removed',  arrow:'✖', aCls:'arrow-removed',  tCls:'text-removed'},
-    unchanged:{tag:'UNCHANGED',cls:'tag-unchanged',arrow:'–', aCls:'arrow-removed',  tCls:'text-modified'}
-  };
-  var order = ['new','modified','removed','unchanged'];
-  var groups = {};
-  changes.forEach(function(c) { var t = c.type||'modified'; if (!groups[t]) groups[t]=[]; groups[t].push(c); });
-  var html = '<div class="changes-card"><div class="changes-head"><span class="section-icon">🔍</span><span class="changes-head-label">Year-on-Year Rule Changes</span><span class="changes-head-badge">' + changes.filter(function(c){return c.type!=='unchanged';}).length + ' change(s)</span></div>';
-  order.forEach(function(type) {
-    if (!groups[type] || !groups[type].length) return;
-    var info = typeInfo[type] || typeInfo.modified;
-    groups[type].forEach(function(c) {
-      html += '<div class="change-item"><div class="change-type-label"><span class="' + info.cls + '">' + info.tag + '</span>' + esc(c.topic) + '</div><div class="change-bullet"><span class="' + info.aCls + '">' + info.arrow + '</span><span class="' + info.tCls + '">' + esc(c.summary || c.current || '') + '</span></div>';
-      if (c.previous && (type==='modified'||type==='removed')) html += '<div class="change-prev">Previously: ' + esc(c.previous) + '</div>';
-      html += '</div>';
+  if (!changes||!changes.length) return '';
+  var cnt = changes.filter(function(c){return c.type!=='unchanged';}).length;
+  var html = '<div class="chcard"><div class="chhead"><span class="sico">🔍</span><span class="chlbl">Year-on-Year Changes</span><span class="chbadge">'+cnt+' change'+(cnt!==1?'s':'')+'</span></div>';
+  var order=['new','modified','removed'];
+  order.forEach(function(t){
+    changes.filter(function(c){return c.type===t;}).forEach(function(c){
+      var tg = t==='new'?'<span class="tgnew">NEW</span>':t==='modified'?'<span class="tgmod">MODIFIED</span>':'<span class="tgrem">REMOVED</span>';
+      html+='<div class="chitem">'+
+        '<div class="chtlbl">'+tg+' '+esc(c.topic)+'</div>'+
+        '<div class="chsum">'+esc(c.summary||c.current||'')+'</div>'+
+        (c.previous&&(t==='modified'||t==='removed')?'<div class="chprev">Previously: '+esc(c.previous)+'</div>':'')+'</div>';
     });
   });
-  html += '</div>';
-  return html;
+  return html+'</div>';
 }
 
-function renderResults(result) {
-  var el = document.getElementById('results');
-  el.style.display = '';
+function showResults(r) {
+  var out = document.getElementById('out');
+  out.style.display = '';
 
-  var grouped = SECTIONS.map(function(s){ return renderGrouped(s, result[s.key]); }).join('');
-  var top3    = TOP.map(function(s){ return renderTop(s, result[s.key]); }).join('');
-  var notes   = (result.notes && result.notes !== 'None') ? '<div class="notes-card"><div class="notes-head">⚠️ Notes &amp; Discrepancies</div><div class="notes-text">' + esc(result.notes) + '</div></div>' : '';
-  var changes = result._withComp ? renderChanges(result.changes) : '';
+  var grouped = SECS.map(function(s){return renderSec(s,r[s.key]);}).join('');
+  var tops    = TOPS.map(function(s){return renderTop(s,r[s.key]);}).join('');
+  var notes   = (r.notes&&r.notes!=='None') ? '<div class="ncard"><div class="nhead">⚠️ Notes &amp; Discrepancies</div><div class="ntxt">'+esc(r.notes)+'</div></div>' : '';
+  var changes = r._comp ? renderChanges(r.changes||[]) : '';
 
-  el.innerHTML =
-    '<div class="title-row">' +
-      '<div class="title-card"><div class="title-label">Abstract of</div><div class="title-name">' + esc(result.regattaName||'Regatta') + '</div><div class="title-summary">' + esc(result.documentsSummary||'') + '</div></div>' +
-      '<button class="pdf-btn-card" onclick="openPDF()"><div class="pdf-btn-icon">📄</div><div class="pdf-btn-label">Print /<br>Save PDF</div></button>' +
-    '</div>' +
-    '<div class="legend">' +
-      '<span><span class="legend-dot" style="background:#4cc97a"></span>Found</span>' +
-      '<span><span class="legend-dot" style="background:#4a6080"></span>Not specified</span>' +
-      '<span><span class="legend-ref">SI 2.1</span>&nbsp;Rule reference</span>' +
-    '</div>' +
-    changes + grouped +
-    '<div class="grid-3">' + top3 + '</div>' +
-    notes +
-    '<div class="actions"><button class="btn-pdf" onclick="openPDF()">📄 Print / Save as PDF</button><button class="btn-new" onclick="resetApp()">↩ Analyse New Documents</button></div>';
-
-  window._result = result;
+  out.innerHTML =
+    '<div class="title-row">'+
+      '<div class="title-card">'+
+        '<div class="t-lbl">Abstract of</div>'+
+        '<div class="t-name">'+esc(r.regattaName||'Regatta')+'</div>'+
+        '<div class="t-sum">'+esc(r.documentsSummary||'')+'</div>'+
+      '</div>'+
+      '<button class="pdf-card" onclick="printPDF()"><div class="pdf-icon">📄</div><div class="pdf-lbl">Print /<br>Save PDF</div></button>'+
+    '</div>'+
+    '<div class="legend">'+
+      '<span><span class="ldot" style="background:#4cc97a"></span>Found</span>'+
+      '<span><span class="ldot" style="background:#4a6080"></span>Not specified</span>'+
+      '<span><span class="lref">SI 2.1</span> = section reference</span>'+
+    '</div>'+
+    changes+grouped+'<div class="grid3">'+tops+'</div>'+notes+
+    '<div class="acts">'+
+      '<button class="act-pdf" onclick="printPDF()">📄 Print / Save as PDF</button>'+
+      '<button class="act-new" onclick="reset()">↩ Analyse New Documents</button>'+
+    '</div>';
 }
 
-function resetApp() {
-  currentFiles.length = 0;
-  prevFiles.length = 0;
-  renderFiles(currentFiles, document.getElementById('dz-current-files'), document.getElementById('dz-current-empty'), document.getElementById('dz-current'), 'ext-current');
-  renderFiles(prevFiles,    document.getElementById('dz-prev-files'),    document.getElementById('dz-prev-empty'),    document.getElementById('dz-prev'),    'ext-prev');
-  document.getElementById('upload-area').style.display = '';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('error-box').style.display = 'none';
+function reset() {
+  CF.length=0; PF.length=0;
+  redraw('c'); redraw('p');
+  document.getElementById('upload-area').style.display='';
+  document.getElementById('out').style.display='none';
+  document.getElementById('out').innerHTML='';
+  document.getElementById('err').style.display='none';
 }
 
-// ── Print / PDF ───────────────────────────────────────────────────────────────
-function openPDF() {
-  var result = window._result; if (!result) return;
+// Print / PDF
+function printPDF() {
+  var r = window._result; if(!r) return;
   var date = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-  function eb(bullets,found) {
-    if(!bullets||!bullets.length) return '<li class="muted"><em>Not specified</em></li>';
-    return bullets.map(function(b){ var ref=b.ref&&found?'<span class="ref">'+esc(b.ref)+'</span>':''; return '<li><span class="arr">'+(found?'▸':'–')+'</span> '+esc(b.text)+' '+ref+'</li>'; }).join('');
+
+  function pb(arr,found){
+    if(!arr||!arr.length) return '<li><em style="color:#888">Not specified</em></li>';
+    return arr.map(function(b){
+      return '<li>'+(found?'▸':'–')+' '+esc(b.text)+(b.ref&&found?' <span class="ref">'+esc(b.ref)+'</span>':'')+'</li>';
+    }).join('');
   }
-  function eg(cfg,data) { if(!data) return ''; var rows=cfg.subs.map(function(sub){var item=data[sub.key];if(!item)return '';return '<div class="sub"><div class="sub-label"><span class="dot '+(item.found?'green':'grey')+'"></span>'+esc(sub.label)+'</div><ul>'+eb(item.bullets,item.found)+'</ul></div>';}).join(''); return '<div class="sec"><div class="sec-head">'+cfg.icon+' '+cfg.label+'</div>'+rows+'</div>'; }
-  function et(sec,data) { if(!data) return ''; return '<div class="sec"><div class="sec-head">'+sec.icon+' '+sec.label+'</div><ul>'+eb(data.bullets,data.found)+'</ul></div>'; }
-  function ec(changes) {
+  function ps(cfg,data){
+    if(!data) return '';
+    var rows=cfg.subs.map(function(sub){
+      var item=data[sub.key]; if(!item) return '';
+      return '<div class="sub"><div class="slbl"><span class="dot '+(item.found?'g':'x')+'"></span>'+esc(sub.lbl)+'</div><ul>'+pb(item.bullets,item.found)+'</ul></div>';
+    }).join('');
+    return '<div class="sec"><div class="sh">'+cfg.ico+' '+cfg.lbl+'</div>'+rows+'</div>';
+  }
+  function pt(sec,data){ if(!data) return ''; return '<div class="sec"><div class="sh">'+sec.ico+' '+sec.lbl+'</div><ul>'+pb(data.bullets,data.found)+'</ul></div>'; }
+  function pc(changes){
     if(!changes||!changes.length) return '';
-    var tm={new:{tag:'NEW',col:'#3cb864'},modified:{tag:'MODIFIED',col:'#c89030'},removed:{tag:'REMOVED',col:'#c84040'}};
-    var h='<div class="sec changes-sec"><div class="sec-head">🔍 YEAR-ON-YEAR CHANGES</div>';
-    ['new','modified','removed'].forEach(function(type){ var items=changes.filter(function(c){return c.type===type;}); if(!items.length) return; items.forEach(function(c){ var t=tm[type]||tm.modified; h+='<div class="cr"><span class="ct" style="border-color:'+t.col+';color:'+t.col+'">'+t.tag+'</span> <strong>'+esc(c.topic)+'</strong><div class="cs">'+esc(c.summary||c.current||'')+'</div>'+(c.previous&&(type==='modified'||type==='removed')?'<div class="cp">Previously: '+esc(c.previous)+'</div>':'')+'</div>'; }); });
+    var h='<div class="sec chs"><div class="sh">🔍 YEAR-ON-YEAR CHANGES</div>';
+    ['new','modified','removed'].forEach(function(t){
+      changes.filter(function(c){return c.type===t;}).forEach(function(c){
+        var col=t==='new'?'#2a7a40':t==='modified'?'#7a6010':'#7a2020';
+        h+='<div class="cr"><b style="color:'+col+'">'+t.toUpperCase()+'</b> — '+esc(c.topic)+'<div class="cs">'+esc(c.summary||c.current||'')+'</div>'+(c.previous&&t!=='new'?'<div class="cp">Was: '+esc(c.previous)+'</div>':'')+'</div>';
+      });
+    });
     return h+'</div>';
   }
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+esc(result.regattaName||'Regatta')+' Abstract</title><style>*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:0}body{font-family:Georgia,serif;font-size:10pt;color:#1a2535;background:#fff;line-height:1.5}.cover{background:#0a1628;padding:22mm 18mm 14mm}.cover-label{font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:4mm;font-family:Arial,sans-serif}.cover-title{font-size:22pt;font-weight:bold;color:#e8d89a;margin-bottom:3mm}.cover-sub{font-size:8pt;color:#6a8aaa;font-style:italic}.cover-date{position:absolute;top:14mm;right:18mm;font-size:7.5pt;color:#5a7a9a;font-family:Arial,sans-serif}.gold-bar{height:2px;background:linear-gradient(90deg,#c8a84b,#e8c96a,#c8a84b)}.body{padding:10mm 18mm 14mm}.sec{margin-bottom:7mm;break-inside:avoid}.sec-head{background:#0e1f38;color:#c8a84b;font-family:Arial,sans-serif;font-size:8pt;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;padding:3.5mm 5mm;border-radius:3px;margin-bottom:3mm}.changes-sec .sec-head{background:#0a2040;color:#7aabdc}.sub{margin-bottom:4mm;padding-left:3mm}.sub-label{font-family:Arial,sans-serif;font-size:7.5pt;font-weight:bold;color:#4a6080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2mm;display:flex;align-items:center;gap:4px}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;flex-shrink:0}.dot.green{background:#3cb864}.dot.grey{background:#8090a0}ul{list-style:none;padding-left:5mm}li{margin-bottom:2mm;display:flex;align-items:flex-start;gap:3mm;font-size:9.5pt;color:#1a2535}li.muted{color:#8090a0;font-style:italic}.arr{color:#3cb864;flex-shrink:0;font-size:8pt}li.muted .arr{color:#8090a0}.ref{display:inline-block;font-family:Arial,sans-serif;font-size:7pt;font-weight:bold;color:#a07828;background:#fdf4dc;border:1px solid #d4aa50;border-radius:3px;padding:0 3px;margin-left:4px;white-space:nowrap;vertical-align:middle}.notes{border:1.5px solid #c8a84b;border-radius:4px;padding:5mm 6mm;background:#fffdf5;margin-top:5mm;break-inside:avoid}.notes strong{font-family:Arial,sans-serif;font-size:7.5pt;font-weight:bold;color:#9a7820;text-transform:uppercase;display:block;margin-bottom:2mm}.notes p{font-size:9pt;color:#3a4a5a}.cr{border-left:3px solid #2a5080;padding:2mm 0 2mm 4mm;margin-bottom:3mm}.ct{font-family:Arial,sans-serif;font-size:6.5pt;font-weight:bold;border:1px solid;border-radius:3px;padding:0 4px;margin-right:4px}.cs{font-size:9pt;color:#1a3050;margin-top:1mm}.cp{font-size:8pt;color:#7a8fa8;font-style:italic;margin-top:1mm}.footer{position:fixed;bottom:8mm;left:18mm;right:18mm;border-top:.5px solid #c8a84b;padding-top:2mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-size:7pt;color:#8090a0}.pbtn{display:block;position:fixed;top:12px;right:12px;background:#c8a84b;color:#0a1628;border:none;border-radius:6px;padding:10px 20px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;cursor:pointer;z-index:999}.pbtn:hover{background:#e8c96a}@media print{.pbtn{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>';
-  html += '<button class="pbtn" onclick="window.print()">🖨 Save as PDF</button>';
-  html += '<div class="cover" style="position:relative"><div class="cover-date">'+esc(date)+'</div><div class="cover-label">Sailing Instructions Abstract</div><div class="cover-title">'+esc(result.regattaName||'Regatta')+'</div><div class="cover-sub">'+esc(result.documentsSummary||'')+'</div></div>';
-  html += '<div class="gold-bar"></div><div class="body">';
-  if (result._withComp) html += ec(result.changes);
-  SECTIONS.forEach(function(s){ html += eg(s, result[s.key]); });
-  TOP.forEach(function(s){ html += et(s, result[s.key]); });
-  if (result.notes && result.notes !== 'None') html += '<div class="notes"><strong>⚠ Notes</strong><p>'+esc(result.notes)+'</p></div>';
-  html += '</div><div class="footer"><span>'+esc(result.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div></body></html>';
 
-  var w = window.open('','_blank');
-  if (w) { w.document.open(); w.document.write(html); w.document.close(); }
-  else {
-    var blob = new Blob([html],{type:'text/html'});
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = (result.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_')+'_Abstract.html';
-    a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+  var body='';
+  if(r._comp) body+=pc(r.changes||[]);
+  SECS.forEach(function(s){body+=ps(s,r[s.key]);});
+  TOPS.forEach(function(s){body+=pt(s,r[s.key]);});
+  if(r.notes&&r.notes!=='None') body+='<div class="note"><b>⚠ Notes</b><p>'+esc(r.notes)+'</p></div>';
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+esc(r.regattaName||'Regatta')+' Abstract</title><style>'+
+'*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:0}'+
+'body{font-family:Georgia,serif;font-size:10pt;color:#1a2535;background:#fff;line-height:1.55}'+
+'.cover{background:#0a1628;padding:20mm 18mm 12mm;position:relative}'+
+'.clbl{font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:4mm;font-family:Arial,sans-serif}'+
+'.ctitle{font-size:21pt;font-weight:bold;color:#e8d89a;margin-bottom:3mm}'+
+'.csub{font-size:8pt;color:#6a8aaa;font-style:italic}'+
+'.cdate{position:absolute;top:12mm;right:18mm;font-size:7pt;color:#5a7a9a;font-family:Arial,sans-serif}'+
+'.gbar{height:2px;background:linear-gradient(90deg,#c8a84b,#e8c96a,#c8a84b)}'+
+'.body{padding:10mm 18mm 14mm}'+
+'.sec{margin-bottom:7mm;break-inside:avoid}'+
+'.sh{background:#0e1f38;color:#c8a84b;font-family:Arial,sans-serif;font-size:8pt;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;padding:3mm 5mm;border-radius:3px;margin-bottom:3mm}'+
+'.chs .sh{background:#0a2040;color:#7aabdc}'+
+'.sub{margin-bottom:4mm;padding-left:3mm}'+
+'.slbl{font-family:Arial,sans-serif;font-size:7.5pt;font-weight:bold;color:#4a6080;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2mm;display:flex;align-items:center;gap:4px}'+
+'.dot{display:inline-block;width:6px;height:6px;border-radius:50%}.dot.g{background:#3cb864}.dot.x{background:#8090a0}'+
+'ul{list-style:none;padding-left:5mm}li{margin-bottom:2mm;font-size:9.5pt;color:#1a2535}'+
+'.ref{display:inline-block;font-family:Arial,sans-serif;font-size:6.5pt;font-weight:bold;color:#a07828;background:#fdf4dc;border:1px solid #d4aa50;border-radius:2px;padding:0 3px;margin-left:3px;vertical-align:middle}'+
+'.note{border:1.5px solid #c8a84b;border-radius:4px;padding:4mm 5mm;background:#fffdf5;margin-top:5mm;break-inside:avoid}'+
+'.note b{font-family:Arial,sans-serif;font-size:7pt;font-weight:bold;color:#9a7820;text-transform:uppercase;display:block;margin-bottom:2mm}'+
+'.note p{font-size:9pt;color:#3a4a5a}'+
+'.cr{border-left:3px solid #2a5080;padding:2mm 0 2mm 4mm;margin-bottom:3mm}'+
+'.cs{font-size:9pt;color:#1a3050;margin-top:1mm}.cp{font-size:8pt;color:#7a8fa8;font-style:italic;margin-top:1mm}'+
+'.footer{position:fixed;bottom:8mm;left:18mm;right:18mm;border-top:.5px solid #c8a84b;padding-top:2mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-size:6.5pt;color:#8090a0}'+
+'.pbtn{position:fixed;top:10px;right:10px;background:#c8a84b;color:#0a1628;border:none;border-radius:6px;padding:9px 18px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;cursor:pointer;z-index:999}'+
+'.pbtn:hover{background:#e8c96a}@media print{.pbtn{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
+'</style></head><body>'+
+'<button class="pbtn" onclick="window.print()">🖨 Save as PDF</button>'+
+'<div class="cover"><div class="cdate">'+esc(date)+'</div><div class="clbl">Sailing Instructions Abstract</div><div class="ctitle">'+esc(r.regattaName||'Regatta')+'</div><div class="csub">'+esc(r.documentsSummary||'')+'</div></div>'+
+'<div class="gbar"></div><div class="body">'+body+'</div>'+
+'<div class="footer"><span>'+esc(r.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div>'+
+'</body></html>';
+
+  var w=window.open('','_blank');
+  if(w){w.document.open();w.document.write(html);w.document.close();}
+  else{
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    a.download=(r.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_')+'_Abstract.html';
+    a.click();
   }
 }
 </script>
