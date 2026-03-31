@@ -138,6 +138,11 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
   <div class="spinner" id="spinner">
     <div class="spin-icon">🧭</div>
     <div class="spin-txt" id="spin-txt">Processing…</div>
+    <div style="margin-top:16px;width:220px;margin-left:auto;margin-right:auto">
+      <div style="height:3px;background:#1e3550;border-radius:3px;overflow:hidden">
+        <div id="pbar" style="height:100%;width:10%;background:linear-gradient(90deg,#c8a84b,#e8c96a);border-radius:3px;transition:width .4s ease"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Error -->
@@ -254,7 +259,7 @@ async function run() {
     // Read files
     var curTxt='';
     for(var i=0;i<CF.length;i++){
-      spin('Reading '+CF[i].name+'…');
+      spin('Step 1/3: Reading '+CF[i].name+'…');
       var ext=CF[i].name.split('.').pop().toLowerCase();
       curTxt+='\n\n=== '+CF[i].name+' ===\n'+(ext==='pdf'?await pdfText(CF[i]):await readTxt(CF[i]));
     }
@@ -270,7 +275,7 @@ async function run() {
       ? 'CURRENT YEAR DOCUMENTS:\n'+curTxt+'\n\nPREVIOUS YEAR DOCUMENTS:\n'+prevTxt+'\n\nReturn the JSON only.'
       : curTxt+'\n\nReturn the JSON only.';
 
-    spin('Asking Claude…');
+    spin('Step 2/3: Sending to Claude AI…');
 
     var resp = await fetch('/api/analyse',{
       method:'POST',
@@ -286,7 +291,7 @@ async function run() {
     var rt = await resp.text();
     if (!resp.ok) throw new Error('API '+resp.status+': '+rt.substring(0,300));
 
-    spin('Parsing response…');
+    spin('Step 3/3: Parsing results…');
     var apiData = JSON.parse(rt);
     if (!apiData.content) throw new Error('No content in response: '+rt.substring(0,200));
 
@@ -324,15 +329,21 @@ async function run() {
 
   } catch(e) {
     var errEl = document.getElementById('err');
-    errEl.style.display='';
-    errEl.innerHTML='<strong>Error:</strong> '+esc(e.message);
-    document.getElementById('upload-area').style.display='';
+    errEl.style.display='block';
+    errEl.innerHTML='<strong>Error:</strong> '+esc(e.message)+'<br><small style="opacity:.7">'+esc(e.stack||'').substring(0,300)+'</small>';
+    // Don't restore upload-area — keep it hidden so error is visible
   } finally {
     document.getElementById('spinner').style.display='none';
   }
 }
 
-function spin(msg){ document.getElementById('spin-txt').textContent=msg; }
+function spin(msg,pct) {
+  document.getElementById('spin-txt').textContent=msg;
+  var steps={'Step 1/3':20,'Step 2/3':55,'Step 3/3':85,'done':100};
+  var p = pct || 10;
+  for(var k in steps){ if(msg.indexOf(k)>=0){ p=steps[k]; break; } }
+  document.getElementById('pbar').style.width=p+'%';
+}
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -395,11 +406,17 @@ function showResults(r) {
   var out = document.getElementById('out');
   out.style.display = 'block';
 
+  // Show raw keys for debug
+  console.log('showResults keys:', Object.keys(r).join(','));
+  console.log('regattaName:', r.regattaName);
+  console.log('rules found:', r.rules ? Object.keys(r.rules).join(',') : 'MISSING');
+
   var grouped = SECS.map(function(s){return renderSec(s,r[s.key]);}).join('');
   var tops    = TOPS.map(function(s){return renderTop(s,r[s.key]);}).join('');
   var notes   = (r.notes&&r.notes!=='None') ? '<div class="ncard"><div class="nhead">⚠️ Notes &amp; Discrepancies</div><div class="ntxt">'+esc(r.notes)+'</div></div>' : '';
   var changes = r._comp ? renderChanges(r.changes||[]) : '';
 
+  console.log('grouped length:', grouped.length, 'tops length:', tops.length);
   out.innerHTML =
     '<div class="title-row">'+
       '<div class="title-card">'+
