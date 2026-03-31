@@ -414,7 +414,7 @@ function showResults(r) {
         '<div class="t-name">'+esc(r.regattaName||'Regatta')+'</div>'+
         '<div class="t-sum">'+esc(r.documentsSummary||'')+'</div>'+
       '</div>'+
-      '<button class="pdf-card" onclick="printPDF()"><div class="pdf-icon">📄</div><div class="pdf-lbl">Print /<br>Save PDF</div></button>'+
+      '<button class="pdf-card" onclick="printPDF(event)"><div class="pdf-icon">📄</div><div class="pdf-lbl">Print /<br>Save PDF</div></button>'+
     '</div>'+
     '<div class="legend">'+
       '<span><span class="ldot" style="background:#4cc97a"></span>Found</span>'+
@@ -423,7 +423,7 @@ function showResults(r) {
     '</div>'+
     changes+grouped+'<div class="grid3">'+tops+'</div>'+notes+
     '<div class="acts">'+
-      '<button class="act-pdf" onclick="printPDF()">📄 Print / Save as PDF</button>'+
+      '<button class="act-pdf" onclick="printPDF(event)">📄 Print / Save as PDF</button>'+
       '<button class="act-new" onclick="reset()">↩ Analyse New Documents</button>'+
     '</div>';
 }
@@ -438,7 +438,8 @@ function reset() {
 }
 
 // Print / PDF
-function printPDF() {
+function printPDF(e) {
+  if (e) { e.stopPropagation(); e.preventDefault(); }
   var r = window._result;
   if(!r) { alert('No results to print. Please run an analysis first.'); return; }
   var date = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
@@ -509,25 +510,17 @@ function printPDF() {
 '<div class="footer"><span>'+esc(r.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div>'+
 '</body></html>';
 
-  // Open in new tab using window.open with blob URL
-  var blob = new Blob([html], {type:'text/html'});
-  var url  = URL.createObjectURL(blob);
-  var w    = window.open(url, '_blank');
-  if (!w) {
-    // Fallback: force download as HTML file
-    var tmp = document.createElement('a');
-    tmp.href = url;
-    tmp.setAttribute('download', (r.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_')+'_Abstract.html');
-    tmp.setAttribute('target', '_blank');
-    tmp.style.display = 'none';
-    document.body.appendChild(tmp);
-    tmp.click();
-    setTimeout(function(){
-      document.body.removeChild(tmp);
-      URL.revokeObjectURL(url);
-    }, 3000);
+  // Write into a new tab — never manipulate current page DOM
+  var w = window.open('', '_blank');
+  if (w) {
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
   } else {
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+    // Popup blocked — write to a data URI instead (no DOM touch)
+    var blob = new Blob([html], {type:'text/html'});
+    var url  = URL.createObjectURL(blob);
+    window.location.href = url;  // navigate current tab as last resort
   }
 }
 </script>
