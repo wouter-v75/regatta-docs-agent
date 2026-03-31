@@ -247,7 +247,7 @@ async function run() {
   document.getElementById('upload-area').style.display='none';
   document.getElementById('spinner').style.display='';
   document.getElementById('err').style.display='none';
-  document.getElementById('out').style.display='none';
+  document.getElementById('out').style.display='none'; // hide while loading
   document.getElementById('out').innerHTML='';
 
   try {
@@ -292,9 +292,6 @@ async function run() {
 
     var raw = '';
     apiData.content.forEach(function(b){ raw += (b.text||''); });
-    console.log('RAW LENGTH:', raw.length);
-    console.log('RAW START:', raw.substring(0,200));
-
     // Strip markdown fences if present
     raw = raw.trim();
     if (raw.startsWith('```')) {
@@ -305,27 +302,22 @@ async function run() {
     var parsed;
     try {
       parsed = JSON.parse(raw);
-      console.log('JSON parse OK, keys:', Object.keys(parsed).join(','));
     } catch(e1) {
-      console.log('JSON parse failed:', e1.message);
       var start = raw.indexOf('{');
       var end   = raw.lastIndexOf('}');
-      console.log('Trying substring from',start,'to',end);
       if (start>=0 && end>start) {
         try { parsed = JSON.parse(raw.substring(start, end+1));
-              console.log('Substring parse OK'); }
+}
         catch(e2) { throw new Error('Could not parse AI response as JSON. Raw: '+raw.substring(0,200)); }
       } else {
         throw new Error('No JSON object found in response. Raw: '+raw.substring(0,200));
       }
     }
 
-    console.log('Calling showResults...');
     parsed._comp = withComp;
     window._result = parsed;
     try {
       showResults(parsed);
-      console.log('showResults completed');
     } catch(renderErr) {
       throw new Error('Render error: '+renderErr.message);
     }
@@ -401,7 +393,7 @@ function renderChanges(changes) {
 
 function showResults(r) {
   var out = document.getElementById('out');
-  out.style.display = '';
+  out.style.display = 'block';
 
   var grouped = SECS.map(function(s){return renderSec(s,r[s.key]);}).join('');
   var tops    = TOPS.map(function(s){return renderTop(s,r[s.key]);}).join('');
