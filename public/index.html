@@ -478,8 +478,8 @@ function printPDF(e) {
   if(r.notes&&r.notes!=='None') body+='<div class="note"><b>⚠ Notes</b><p>'+esc(r.notes)+'</p></div>';
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+esc(r.regattaName||'Regatta')+' Abstract</title><style>'+
-'*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:0}'+
-'body{font-family:Georgia,serif;font-size:10pt;color:#1a2535;background:#fff;line-height:1.55}'+
+'*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:10mm 0 10mm 0}'+
+'body{font-family:Georgia,serif;font-size:10pt;color:#1a2535;background:#fff;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
 '.cover{background:#0a1628;padding:20mm 18mm 12mm;position:relative}'+
 '.clbl{font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:4mm;font-family:Arial,sans-serif}'+
 '.ctitle{font-size:21pt;font-weight:bold;color:#e8d89a;margin-bottom:3mm}'+
@@ -504,27 +504,32 @@ function printPDF(e) {
 '.pbtn{position:fixed;top:10px;right:10px;background:#c8a84b;color:#0a1628;border:none;border-radius:6px;padding:9px 18px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;cursor:pointer;z-index:999}'+
 '.pbtn:hover{background:#e8c96a}@media print{.pbtn{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
 '</style></head><body>'+
-'<button class="pbtn" onclick="window.print()">🖨 Save as PDF</button>'+
+'<button class="pbtn" id="pbtn" onclick="window.print()">🖨 Save as PDF</button>'+
+'<script>window.onload=function(){document.getElementById("pbtn").style.background="#e8c96a";}<\/script>'+
 '<div class="cover"><div class="cdate">'+esc(date)+'</div><div class="clbl">Sailing Instructions Abstract</div><div class="ctitle">'+esc(r.regattaName||'Regatta')+'</div><div class="csub">'+esc(r.documentsSummary||'')+'</div></div>'+
 '<div class="gbar"></div><div class="body">'+body+'</div>'+
 '<div class="footer"><span>'+esc(r.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div>'+
 '</body></html>';
 
-  var blob = new Blob([html], {type:'text/html'});
-  var url  = URL.createObjectURL(blob);
-  var w    = window.open(url, '_blank');
-  if (!w) {
-    // Popup blocked — show message, never navigate away
-    var msg = document.getElementById('pdf-blocked-msg');
+  var w = window.open('', '_blank');
+  if (w) {
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  } else {
+    // Popup blocked — show inline link
+    var msg = document.getElementById('pdf-msg');
     if (!msg) {
       msg = document.createElement('div');
-      msg.id = 'pdf-blocked-msg';
-      msg.style.cssText = 'background:#1a3a1a;border:1px solid #4a8a4a;border-radius:8px;padding:12px 16px;margin-top:12px;color:#80c880;font-size:13px;';
-      document.getElementById('out').insertBefore(msg, document.getElementById('out').firstChild);
+      msg.id = 'pdf-msg';
+      msg.style.cssText = 'background:#1a3a1a;border:1px solid #4a8a4a;border-radius:8px;padding:12px 16px;margin-bottom:12px;color:#80c880;font-size:13px;';
+      var acts = document.querySelector('.acts');
+      acts.parentNode.insertBefore(msg, acts);
     }
-    msg.innerHTML = '⚠️ Popup blocked by browser. <a href="'+url+'" target="_blank" style="color:#c8a84b">Click here to open the PDF</a> — then press 🖨 Save as PDF.';
+    var blob = new Blob([html], {type:'text/html'});
+    var url  = URL.createObjectURL(blob);
+    msg.innerHTML = '⚠️ Popup was blocked. <a href="'+url+'" target="_blank" style="color:#c8a84b;font-weight:bold">Click here to open the abstract</a>, then use 🖨 Save as PDF.';
   }
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
 }
 </script>
 </body>
