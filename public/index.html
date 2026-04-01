@@ -102,6 +102,12 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
 .act-pdf:hover{background:rgba(200,168,75,.15)}
 .act-new{flex:1;padding:11px;background:transparent;border:1px solid #1e3550;border-radius:8px;color:#4a6a8a;font-size:13px;cursor:pointer;font-family:inherit}
 .act-new:hover{border-color:#3a5a7a;color:#7a9ab8}
+.class-bar{background:#0a1628;border:1px solid #1e3550;border-radius:10px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.class-bar label{font-size:11px;font-weight:700;color:#7a9bb8;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.class-input{flex:1;min-width:160px;max-width:280px;background:#0d1e35;border:1px solid #1e3550;border-radius:6px;padding:7px 11px;color:#e8d8a8;font-size:13px;font-family:Georgia,serif;outline:none;transition:border-color .2s}
+.class-input:focus{border-color:#c8a84b}
+.class-input::placeholder{color:#3a5570;font-style:italic}
+.class-hint{font-size:11px;color:#3a5570;font-style:italic}
 /* Print styles — hide everything except print-area when printing */
 #print-area{display:none}
 @media print{
@@ -122,6 +128,11 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
 <div class="main">
   <!-- Upload area -->
   <div id="upload-area">
+    <div class="class-bar">
+      <label for="class-input">⛵ Your Class</label>
+      <input type="text" id="class-input" class="class-input" placeholder="e.g. IRC, IMA Maxi, J/24, ORC… (optional)" autocomplete="off"/>
+      <span class="class-hint">If entered, irrelevant rules will be filtered out</span>
+    </div>
     <div class="zone-label"><span class="badge bc">THIS YEAR</span> Current Regatta Documents</div>
     <div class="zone" id="zc">
       <input type="file" id="ic" multiple accept=".pdf,.txt,.doc,.docx,.rtf" style="display:none" onchange="addFiles('c',this.files);this.value=''"/>
@@ -252,9 +263,20 @@ function readTxt(file){
 }
 
 // Prompts
-var SYS = 'You are a sailing regatta documentation specialist. Extract the requested information and return ONLY a single JSON object — no markdown, no explanation.\n\nJSON structure:\n{"regattaName":"...","documentsSummary":"...","rules":{"changingOfSails":{"found":true,"bullets":[{"text":"...","ref":"SI 2.1"}]},"ownerDriver":{"found":true,"bullets":[{"text":"...","ref":"NOR 3.2"}]}},"schedule":{"ratingDeadline":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.1"}]},"registrationTimes":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.2"}]},"registrationDeadline":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.3"}]},"skippersBriefing":{"found":true,"bullets":[{"text":"...","ref":"SI 4.1"}]},"dailyAmendmentDeadline":{"found":true,"bullets":[{"text":"...","ref":"SI 4.2"}]},"dailyScheduleChangesDeadline":{"found":true,"bullets":[{"text":"...","ref":"SI 4.3"}]}},"scoring":{"racesAndType":{"found":true,"bullets":[{"text":"...","ref":"SI 10.1"},{"text":"...","ref":"SI 10.2"}]},"discards":{"found":true,"bullets":[{"text":"...","ref":"SI 10.3"}]}},"vhfChannels":{"found":true,"bullets":[{"text":"...","ref":"SI 6.1"}]},"ocsRules":{"found":true,"bullets":[{"text":"...","ref":"SI 11.1"}]},"penaltyTurns":{"found":true,"bullets":[{"text":"...","ref":"SI 12.1"}]},"notes":"None"}\n\nIf a topic is not found set found:false and bullets:[{"text":"Not specified","ref":""}]. Include section reference for every found item.';
+var SYS_TEMPLATE = 'You are a sailing regatta documentation specialist. Extract the requested information and return ONLY a single JSON object — no markdown, no explanation.\n\n{CLASS_INSTRUCTION}\n\nJSON structure:\n{"regattaName":"...","documentsSummary":"...","rules":{"changingOfSails":{"found":true,"bullets":[{"text":"...","ref":"SI 2.1"}]},"ownerDriver":{"found":true,"bullets":[{"text":"...","ref":"NOR 3.2"}]}},"schedule":{"ratingDeadline":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.1"}]},"registrationTimes":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.2"}]},"registrationDeadline":{"found":true,"bullets":[{"text":"...","ref":"NOR 5.3"}]},"skippersBriefing":{"found":true,"bullets":[{"text":"...","ref":"SI 4.1"}]},"dailyAmendmentDeadline":{"found":true,"bullets":[{"text":"...","ref":"SI 4.2"}]},"dailyScheduleChangesDeadline":{"found":true,"bullets":[{"text":"...","ref":"SI 4.3"}]}},"scoring":{"racesAndType":{"found":true,"bullets":[{"text":"...","ref":"SI 10.1"},{"text":"...","ref":"SI 10.2"}]},"discards":{"found":true,"bullets":[{"text":"...","ref":"SI 10.3"}]}},"racingSchedule":{"firstWarning":{"found":true,"bullets":[{"text":"First warning signal time and date for each day of racing","ref":"SI 5.1"}]},"dailySchedule":{"found":true,"bullets":[{"text":"Full daily schedule of warning signals for each class/division","ref":"SI 5.2"}]}},"marks":{"markShapes":{"found":true,"bullets":[{"text":"Shape of each mark type e.g. inflatable buoy, cone, can","ref":"SI 8.1"}]},"markColours":{"found":true,"bullets":[{"text":"Colour of each mark e.g. orange windward, yellow leeward","ref":"SI 8.2"}]},"markDetails":{"found":true,"bullets":[{"text":"Any other mark details e.g. gate marks, finish marks","ref":"SI 8.3"}]}},"vhfChannels":{"found":true,"bullets":[{"text":"...","ref":"SI 6.1"}]},"ocsRules":{"found":true,"bullets":[{"text":"...","ref":"SI 11.1"}]},"penaltyTurns":{"found":true,"bullets":[{"text":"...","ref":"SI 12.1"}]},"notes":"None"}\n\nIf a topic is not found set found:false and bullets:[{"text":"Not specified","ref":""}]. Include section reference for every found item.';
 
-var SYS2 = SYS + '\n\nAlso compare CURRENT YEAR vs PREVIOUS YEAR and add a "changes" array: [{"topic":"...","type":"new|modified|removed","current":"...","previous":"...","summary":"..."}]. Be thorough — check all sections.';
+function buildSys(boatClass, withComp) {
+  var classInstr = boatClass
+    ? 'The sailor is racing in class: ' + boatClass + '. Focus on information relevant to this class. For schedule items (starting times, VHF channels, courses), extract only the information that applies to this class or to all classes. Omit details that clearly apply only to other classes.'
+    : 'Extract all information regardless of class.';
+  var sys = SYS_TEMPLATE.replace('{CLASS_INSTRUCTION}', classInstr);
+  if (withComp) {
+    sys += '\n\nAlso compare CURRENT YEAR vs PREVIOUS YEAR and add a "changes" array: [{"topic":"...","type":"new|modified|removed","current":"...","previous":"...","summary":"..."}]. Be thorough.';
+  }
+  return sys;
+}
+
+// SYS2 replaced by buildSys()
 
 // Main analyse function
 async function run() {
@@ -280,8 +302,9 @@ async function run() {
       prevTxt+='\n\n=== '+PF[j].name+' ===\n'+(pext==='pdf'?await pdfText(PF[j]):await readTxt(PF[j]));
     }
 
-    var withComp = PF.length>0;
-    var userMsg = withComp
+    var withComp  = PF.length>0;
+    var boatClass = document.getElementById('class-input').value.trim();
+    var userMsg   = withComp
       ? 'CURRENT YEAR DOCUMENTS:\n'+curTxt+'\n\nPREVIOUS YEAR DOCUMENTS:\n'+prevTxt+'\n\nReturn the JSON only.'
       : curTxt+'\n\nReturn the JSON only.';
 
@@ -293,7 +316,7 @@ async function run() {
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:4096,
-        system: withComp ? SYS2 : SYS,
+        system: buildSys(boatClass, withComp),
         messages:[{role:'user',content:userMsg}]
       })
     });
@@ -330,6 +353,7 @@ async function run() {
     }
 
     parsed._comp = withComp;
+    parsed._class = boatClass;
     window._result = parsed;
     showResults(parsed);
 
@@ -357,7 +381,9 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 var SECS = [
   {key:'rules',lbl:'RULES',ico:'⚖',subs:[{key:'changingOfSails',lbl:'Changing of Sails'},{key:'ownerDriver',lbl:'Owner-Driver Rule'}]},
   {key:'schedule',lbl:'SCHEDULE',ico:'📅',subs:[{key:'ratingDeadline',lbl:'Rating Deadline'},{key:'registrationTimes',lbl:'Registration Times'},{key:'registrationDeadline',lbl:'Registration Deadline'},{key:'skippersBriefing',lbl:'Skippers Briefing'},{key:'dailyAmendmentDeadline',lbl:'Daily Amendment Deadline'},{key:'dailyScheduleChangesDeadline',lbl:'Daily Schedule Changes Deadline'}]},
-  {key:'scoring',lbl:'SCORING',ico:'🏆',subs:[{key:'racesAndType',lbl:'Number of Races & Type'},{key:'discards',lbl:'Discards'}]}
+  {key:'scoring',lbl:'SCORING',ico:'🏆',subs:[{key:'racesAndType',lbl:'Number of Races & Type'},{key:'discards',lbl:'Discards'}]},
+  {key:'racingSchedule',lbl:'RACING SCHEDULE',ico:'🚦',subs:[{key:'firstWarning',lbl:'First Warning / Starting Time'},{key:'dailySchedule',lbl:'Daily Race Schedule'}]},
+  {key:'marks',lbl:'MARKS',ico:'🔴',subs:[{key:'markShapes',lbl:'Mark Shapes'},{key:'markColours',lbl:'Mark Colours'},{key:'markDetails',lbl:'Other Mark Details'}]}
 ];
 var TOPS = [
   {key:'vhfChannels',lbl:'VHF CHANNELS',ico:'📡'},
@@ -424,6 +450,7 @@ function showResults(r) {
       '<div class="title-card">'+
         '<div class="t-lbl">Abstract of</div>'+
         '<div class="t-name">'+esc(r.regattaName||'Regatta')+'</div>'+
+        (r._class ? '<div style="margin-bottom:4px"><span style="font-size:10px;font-weight:700;color:#c8a84b;background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.35);border-radius:10px;padding:2px 10px">⛵ '+esc(r._class)+'</span></div>' : '')+
         '<div class="t-sum">'+esc(r.documentsSummary||'')+'</div>'+
       '</div>'+
       '<button class="pdf-card" id="pdf-btn-top"><div class="pdf-icon">📄</div><div class="pdf-lbl">Print /<br>Save PDF</div></button>'+
@@ -519,6 +546,7 @@ function printPDF() {
     '<div style="background:#0a1628;color:#fff;padding:16mm 16mm 10mm;margin:-12mm -16mm 10mm;position:relative">' +
       '<div style="font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:6px;font-family:Arial,sans-serif">Sailing Instructions Abstract</div>'+
       '<div style="font-size:20pt;font-weight:bold;color:#e8d89a;margin-bottom:4px">'+esc(r.regattaName||'Regatta')+'</div>'+
+      (r._class ? '<div style="font-size:9pt;color:#c8a84b;margin-bottom:4px">⛵ Class: '+esc(r._class)+'</div>' : '')+
       '<div style="font-size:8pt;color:#6a8aaa;font-style:italic">'+esc(r.documentsSummary||'')+'</div>'+
       '<div style="position:absolute;top:12mm;right:16mm;font-size:7.5pt;color:#5a7a9a;font-family:Arial,sans-serif">'+esc(date)+'</div>'+
     '</div>'+
