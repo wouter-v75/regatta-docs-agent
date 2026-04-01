@@ -404,7 +404,9 @@ function showResults(r) {
 
   var grouped = SECS.map(function(s){return renderSec(s,r[s.key]);}).join('');
   var tops    = TOPS.map(function(s){return renderTop(s,r[s.key]);}).join('');
-  var notes   = (r.notes&&r.notes!=='None') ? '<div class="ncard"><div class="nhead">⚠️ Notes &amp; Discrepancies</div><div class="ntxt">'+esc(r.notes)+'</div></div>' : '';
+  var notes   = (r.notes && r.notes !== 'None')
+    ? '<div class="ncard"><div class="nhead">⚠️ Notes &amp; Discrepancies</div><div class="ntxt">'+esc(r.notes)+'</div></div>'
+    : '';
   var changes = r._comp ? renderChanges(r.changes||[]) : '';
 
   out.innerHTML =
@@ -414,102 +416,123 @@ function showResults(r) {
         '<div class="t-name">'+esc(r.regattaName||'Regatta')+'</div>'+
         '<div class="t-sum">'+esc(r.documentsSummary||'')+'</div>'+
       '</div>'+
-      '<button class="pdf-card" onclick="printPDF(event)"><div class="pdf-icon">📄</div><div class="pdf-lbl">Print /<br>Save PDF</div></button>'+
+      '<button class="pdf-card" id="pdf-btn-top"><div class="pdf-icon">📄</div><div class="pdf-lbl">Print /<br>Save PDF</div></button>'+
     '</div>'+
     '<div class="legend">'+
       '<span><span class="ldot" style="background:#4cc97a"></span>Found</span>'+
       '<span><span class="ldot" style="background:#4a6080"></span>Not specified</span>'+
       '<span><span class="lref">SI 2.1</span> = section reference</span>'+
     '</div>'+
-    changes+grouped+'<div class="grid3">'+tops+'</div>'+notes+
+    changes + grouped +
+    '<div class="grid3">'+tops+'</div>'+
+    notes +
     '<div class="acts">'+
-      '<button class="act-pdf" onclick="printPDF(event)">📄 Print / Save as PDF</button>'+
-      '<button class="act-new" onclick="reset()">↩ Analyse New Documents</button>'+
+      '<button class="act-pdf" id="pdf-btn-bot">📄 Print / Save as PDF</button>'+
+      '<button class="act-new" id="btn-reset">↩ Analyse New Documents</button>'+
     '</div>';
+
+  // Attach event listeners — no onclick attributes in HTML
+  document.getElementById('pdf-btn-top').addEventListener('click', function(e){ e.stopPropagation(); printPDF(); });
+  document.getElementById('pdf-btn-bot').addEventListener('click', function(e){ e.stopPropagation(); printPDF(); });
+  document.getElementById('btn-reset').addEventListener('click', function(e){ e.stopPropagation(); reset(); });
 }
 
 function reset() {
-  CF.length=0; PF.length=0;
+  CF.length = 0; PF.length = 0;
   redraw('c'); redraw('p');
-  document.getElementById('upload-area').style.display='';
-  document.getElementById('out').style.display='none';
-  document.getElementById('out').innerHTML='';
-  document.getElementById('err').style.display='none';
+  document.getElementById('upload-area').style.display = '';
+  document.getElementById('out').style.display = 'none';
+  document.getElementById('out').innerHTML = '';
+  document.getElementById('err').style.display = 'none';
 }
 
-// Print / PDF
-function printPDF(e) {
-  if (e) { e.stopPropagation(); e.preventDefault(); }
+function printPDF() {
   var r = window._result;
-  if(!r) { alert('No results to print. Please run an analysis first.'); return; }
+  if (!r) { alert('No results to print — run an analysis first.'); return; }
   var date = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
 
-  function pb(arr,found){
-    if(!arr||!arr.length) return '<li><em style="color:#888">Not specified</em></li>';
+  // ── Build print-friendly HTML (light theme, safe for all browsers) ──
+  function pb(arr, found) {
+    if (!arr||!arr.length) return '<li style="color:#888"><em>Not specified</em></li>';
     return arr.map(function(b){
-      return '<li>'+(found?'▸':'–')+' '+esc(b.text)+(b.ref&&found?' <span class="ref">'+esc(b.ref)+'</span>':'')+'</li>';
+      var ref = (b.ref && found) ? ' <span style="font-size:7pt;font-weight:bold;color:#7a5010;background:#fdf4dc;border:1px solid #d4aa50;border-radius:2px;padding:0 3px;margin-left:3px">'+esc(b.ref)+'</span>' : '';
+      return '<li>'+(found?'▸':'–')+' '+esc(b.text)+ref+'</li>';
     }).join('');
   }
-  function ps(cfg,data){
-    if(!data) return '';
-    var rows=cfg.subs.map(function(sub){
-      var item=data[sub.key]; if(!item) return '';
-      return '<div class="sub"><div class="slbl"><span class="dot '+(item.found?'g':'x')+'"></span>'+esc(sub.lbl)+'</div><ul>'+pb(item.bullets,item.found)+'</ul></div>';
+  function ps(cfg, data) {
+    if (!data) return '';
+    var rows = cfg.subs.map(function(sub){
+      var item = data[sub.key]; if (!item) return '';
+      var dot = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+(item.found?'#2a7a40':'#aaa')+';margin-right:5px;vertical-align:middle"></span>';
+      return '<div style="margin-bottom:8px;padding-left:8px">'+
+        '<div style="font-size:7.5pt;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">'+dot+esc(sub.lbl)+'</div>'+
+        '<ul style="list-style:none;padding-left:12px;margin:0">'+pb(item.bullets,item.found)+'</ul></div>';
     }).join('');
-    return '<div class="sec"><div class="sh">'+cfg.ico+' '+cfg.lbl+'</div>'+rows+'</div>';
+    return '<div style="margin-bottom:14px;break-inside:avoid">'+
+      '<div style="background:#0e1f38;color:#c8a84b;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:6px">'+cfg.ico+' '+cfg.lbl+'</div>'+
+      rows+'</div>';
   }
-  function pt(sec,data){ if(!data) return ''; return '<div class="sec"><div class="sh">'+sec.ico+' '+sec.lbl+'</div><ul>'+pb(data.bullets,data.found)+'</ul></div>'; }
-  function pc(changes){
-    if(!changes||!changes.length) return '';
-    var h='<div class="sec chs"><div class="sh">🔍 YEAR-ON-YEAR CHANGES</div>';
+  function pt(sec, data) {
+    if (!data) return '';
+    return '<div style="margin-bottom:14px;break-inside:avoid">'+
+      '<div style="background:#0e1f38;color:#c8a84b;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:6px">'+sec.ico+' '+sec.lbl+'</div>'+
+      '<ul style="list-style:none;padding-left:12px;margin:0">'+pb(data.bullets,data.found)+'</ul></div>';
+  }
+  function pc(changes) {
+    if (!changes||!changes.length) return '';
+    var h = '<div style="margin-bottom:14px;break-inside:avoid">'+
+      '<div style="background:#0a2040;color:#7aabdc;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:6px">🔍 YEAR-ON-YEAR CHANGES</div>';
     ['new','modified','removed'].forEach(function(t){
       changes.filter(function(c){return c.type===t;}).forEach(function(c){
-        var col=t==='new'?'#2a7a40':t==='modified'?'#7a6010':'#7a2020';
-        h+='<div class="cr"><b style="color:'+col+'">'+t.toUpperCase()+'</b> — '+esc(c.topic)+'<div class="cs">'+esc(c.summary||c.current||'')+'</div>'+(c.previous&&t!=='new'?'<div class="cp">Was: '+esc(c.previous)+'</div>':'')+'</div>';
+        var col = t==='new'?'#1a6a30':t==='modified'?'#7a5a00':'#7a1a1a';
+        h += '<div style="border-left:3px solid #5a8abf;padding:4px 0 4px 10px;margin-bottom:6px">'+
+          '<b style="color:'+col+';font-size:7.5pt">'+t.toUpperCase()+'</b> — '+esc(c.topic)+
+          '<div style="font-size:9pt;margin-top:2px">'+esc(c.summary||c.current||'')+'</div>'+
+          (c.previous&&t!=='new'?'<div style="font-size:8pt;color:#777;font-style:italic">Was: '+esc(c.previous)+'</div>':'')+
+        '</div>';
       });
     });
     return h+'</div>';
   }
 
-  var body='';
-  if(r._comp) body+=pc(r.changes||[]);
-  SECS.forEach(function(s){body+=ps(s,r[s.key]);});
-  TOPS.forEach(function(s){body+=pt(s,r[s.key]);});
-  if(r.notes&&r.notes!=='None') body+='<div class="note"><b>⚠ Notes</b><p>'+esc(r.notes)+'</p></div>';
+  var body = '';
+  if (r._comp) body += pc(r.changes||[]);
+  SECS.forEach(function(s){ body += ps(s, r[s.key]); });
+  TOPS.forEach(function(s){ body += pt(s, r[s.key]); });
+  if (r.notes && r.notes !== 'None') {
+    body += '<div style="border:1.5px solid #c8a84b;border-radius:4px;padding:10px 14px;background:#fffdf5;margin-top:10px;break-inside:avoid">'+
+      '<b style="font-size:7.5pt;color:#9a7820;text-transform:uppercase;display:block;margin-bottom:4px">⚠ Notes</b>'+
+      '<p style="font-size:9pt;color:#444">'+esc(r.notes)+'</p></div>';
+  }
 
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+esc(r.regattaName||'Regatta')+' Abstract</title><style>'+
-'*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:10mm 0 10mm 0}'+
-'body{font-family:Georgia,serif;font-size:10pt;color:#1a2535;background:#fff;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-'.cover{background:#0a1628;padding:20mm 18mm 12mm;position:relative}'+
-'.clbl{font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:4mm;font-family:Arial,sans-serif}'+
-'.ctitle{font-size:21pt;font-weight:bold;color:#e8d89a;margin-bottom:3mm}'+
-'.csub{font-size:8pt;color:#6a8aaa;font-style:italic}'+
-'.cdate{position:absolute;top:12mm;right:18mm;font-size:7pt;color:#5a7a9a;font-family:Arial,sans-serif}'+
-'.gbar{height:2px;background:linear-gradient(90deg,#c8a84b,#e8c96a,#c8a84b)}'+
-'.body{padding:10mm 18mm 14mm}'+
-'.sec{margin-bottom:7mm;break-inside:avoid}'+
-'.sh{background:#0e1f38;color:#c8a84b;font-family:Arial,sans-serif;font-size:8pt;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;padding:3mm 5mm;border-radius:3px;margin-bottom:3mm}'+
-'.chs .sh{background:#0a2040;color:#7aabdc}'+
-'.sub{margin-bottom:4mm;padding-left:3mm}'+
-'.slbl{font-family:Arial,sans-serif;font-size:7.5pt;font-weight:bold;color:#4a6080;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2mm;display:flex;align-items:center;gap:4px}'+
-'.dot{display:inline-block;width:6px;height:6px;border-radius:50%}.dot.g{background:#3cb864}.dot.x{background:#8090a0}'+
-'ul{list-style:none;padding-left:5mm}li{margin-bottom:2mm;font-size:9.5pt;color:#1a2535}'+
-'.ref{display:inline-block;font-family:Arial,sans-serif;font-size:6.5pt;font-weight:bold;color:#a07828;background:#fdf4dc;border:1px solid #d4aa50;border-radius:2px;padding:0 3px;margin-left:3px;vertical-align:middle}'+
-'.note{border:1.5px solid #c8a84b;border-radius:4px;padding:4mm 5mm;background:#fffdf5;margin-top:5mm;break-inside:avoid}'+
-'.note b{font-family:Arial,sans-serif;font-size:7pt;font-weight:bold;color:#9a7820;text-transform:uppercase;display:block;margin-bottom:2mm}'+
-'.note p{font-size:9pt;color:#3a4a5a}'+
-'.cr{border-left:3px solid #2a5080;padding:2mm 0 2mm 4mm;margin-bottom:3mm}'+
-'.cs{font-size:9pt;color:#1a3050;margin-top:1mm}.cp{font-size:8pt;color:#7a8fa8;font-style:italic;margin-top:1mm}'+
-'.footer{position:fixed;bottom:8mm;left:18mm;right:18mm;border-top:.5px solid #c8a84b;padding-top:2mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-size:6.5pt;color:#8090a0}'+
-'.pbtn{position:fixed;top:10px;right:10px;background:#c8a84b;color:#0a1628;border:none;border-radius:6px;padding:9px 18px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;cursor:pointer;z-index:999}'+
-'.pbtn:hover{background:#e8c96a}@media print{.pbtn{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
-'</style></head><body>'+
-'<button class="pbtn" id="pbtn" onclick="window.print()">🖨 Save as PDF</button>'+
-'<script>window.onload=function(){document.getElementById("pbtn").style.background="#e8c96a";}<\/script>'+
-'<div class="cover"><div class="cdate">'+esc(date)+'</div><div class="clbl">Sailing Instructions Abstract</div><div class="ctitle">'+esc(r.regattaName||'Regatta')+'</div><div class="csub">'+esc(r.documentsSummary||'')+'</div></div>'+
-'<div class="gbar"></div><div class="body">'+body+'</div>'+
-'<div class="footer"><span>'+esc(r.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div>'+
-'</body></html>';
+  var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8"/>\n' +
+    '<title>'+esc(r.regattaName||'Regatta')+' Abstract</title>\n' +
+    '<style>\n' +
+    '* { box-sizing:border-box; margin:0; padding:0; }\n' +
+    'body { font-family:Georgia,serif; font-size:10pt; color:#1a2535; background:#fff; line-height:1.55; }\n' +
+    'ul { list-style:none; padding-left:0; margin:0; }\n' +
+    'li { margin-bottom:3px; font-size:9.5pt; }\n' +
+    '.cover { background:#0a1628; color:#fff; padding:20mm 18mm 12mm; }\n' +
+    '.pbtn { position:fixed; top:10px; right:10px; background:#c8a84b; color:#0a1628; border:none; border-radius:6px; padding:9px 18px; font-family:Arial,sans-serif; font-size:12px; font-weight:bold; cursor:pointer; z-index:999; }\n' +
+    '@media print {\n' +
+    '  .pbtn { display:none !important; }\n' +
+    '  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }\n' +
+    '  body { margin:0; }\n' +
+    '}\n' +
+    '</style>\n' +
+    '</head>\n<body>\n' +
+    '<button class="pbtn" onclick="window.print()">🖨 Save as PDF</button>\n' +
+    '<div class="cover">\n' +
+    '  <div style="font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:8px;font-family:Arial,sans-serif">Sailing Instructions Abstract</div>\n' +
+    '  <div style="font-size:21pt;font-weight:bold;color:#e8d89a;margin-bottom:6px">'+esc(r.regattaName||'Regatta')+'</div>\n' +
+    '  <div style="font-size:8pt;color:#6a8aaa;font-style:italic">'+esc(r.documentsSummary||'')+'</div>\n' +
+    '  <div style="float:right;font-size:7.5pt;color:#5a7a9a;font-family:Arial,sans-serif;margin-top:-40px">'+esc(date)+'</div>\n' +
+    '</div>\n' +
+    '<div style="height:2px;background:linear-gradient(90deg,#c8a84b,#e8c96a,#c8a84b)"></div>\n' +
+    '<div style="padding:10mm 18mm 14mm">\n' +
+    body +
+    '</div>\n' +
+    '</body>\n</html>';
 
   var w = window.open('', '_blank');
   if (w) {
@@ -517,20 +540,22 @@ function printPDF(e) {
     w.document.write(html);
     w.document.close();
   } else {
-    // Popup blocked — show inline link
-    var msg = document.getElementById('pdf-msg');
-    if (!msg) {
-      msg = document.createElement('div');
-      msg.id = 'pdf-msg';
-      msg.style.cssText = 'background:#1a3a1a;border:1px solid #4a8a4a;border-radius:8px;padding:12px 16px;margin-bottom:12px;color:#80c880;font-size:13px;';
-      var acts = document.querySelector('.acts');
-      acts.parentNode.insertBefore(msg, acts);
-    }
+    // Popup blocked — download as HTML file
     var blob = new Blob([html], {type:'text/html'});
     var url  = URL.createObjectURL(blob);
-    msg.innerHTML = '⚠️ Popup was blocked. <a href="'+url+'" target="_blank" style="color:#c8a84b;font-weight:bold">Click here to open the abstract</a>, then use 🖨 Save as PDF.';
+    var a    = document.createElement('a');
+    a.href   = url;
+    a.download = (r.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_') + '_Abstract.html';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 2000);
   }
 }
+
 </script>
 </body>
 </html>
