@@ -106,8 +106,9 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
 #print-area{display:none}
 @media print{
   body>*{display:none !important}
-  #print-area{display:block !important;position:fixed;top:0;left:0;width:100%;background:#fff;color:#000;font-family:Georgia,serif;font-size:10pt;line-height:1.55;padding:12mm 16mm}
-  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+  #print-area{display:block !important;position:static;width:100%;background:#fff;color:#000;font-family:Georgia,serif;font-size:10pt;line-height:1.55;padding:12mm 16mm}
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+  @page{margin:10mm 0}
 }
 </style>
 </head>
