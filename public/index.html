@@ -103,6 +103,13 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
 .act-pdf:hover{background:rgba(200,168,75,.15)}
 .act-new{flex:1;padding:11px;background:transparent;border:1px solid #1e3550;border-radius:8px;color:#4a6a8a;font-size:13px;cursor:pointer;font-family:inherit}
 .act-new:hover{border-color:#3a5a7a;color:#7a9ab8}
+/* Print styles — hide everything except print-area when printing */
+#print-area{display:none}
+@media print{
+  body>*{display:none !important}
+  #print-area{display:block !important;position:fixed;top:0;left:0;width:100%;background:#fff;color:#000;font-family:Georgia,serif;font-size:10pt;line-height:1.55;padding:12mm 16mm}
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+}
 </style>
 </head>
 <body>
@@ -151,6 +158,9 @@ ul.blist li{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
   <!-- Results -->
   <div id="out"></div>
 </div>
+
+<!-- Hidden print area -->
+<div id="print-area"></div>
 
 <script>
 // File stores
@@ -451,41 +461,40 @@ function printPDF() {
   if (!r) { alert('No results to print — run an analysis first.'); return; }
   var date = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
 
-  // ── Build print-friendly HTML (light theme, safe for all browsers) ──
   function pb(arr, found) {
-    if (!arr||!arr.length) return '<li style="color:#888"><em>Not specified</em></li>';
+    if (!arr||!arr.length) return '<li style="color:#888;margin-bottom:3px"><em>Not specified</em></li>';
     return arr.map(function(b){
-      var ref = (b.ref && found) ? ' <span style="font-size:7pt;font-weight:bold;color:#7a5010;background:#fdf4dc;border:1px solid #d4aa50;border-radius:2px;padding:0 3px;margin-left:3px">'+esc(b.ref)+'</span>' : '';
-      return '<li>'+(found?'▸':'–')+' '+esc(b.text)+ref+'</li>';
+      var ref = (b.ref&&found) ? ' <span style="font-size:7pt;font-weight:bold;color:#7a5010;background:#fdf4dc;border:1px solid #d4aa50;border-radius:2px;padding:0 3px;margin-left:3px">'+esc(b.ref)+'</span>' : '';
+      return '<li style="margin-bottom:3px">'+(found?'▸':'–')+' '+esc(b.text)+ref+'</li>';
     }).join('');
   }
   function ps(cfg, data) {
     if (!data) return '';
     var rows = cfg.subs.map(function(sub){
       var item = data[sub.key]; if (!item) return '';
-      var dot = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+(item.found?'#2a7a40':'#aaa')+';margin-right:5px;vertical-align:middle"></span>';
+      var dot = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+(item.found?'#2a7a40':'#aaa')+';margin-right:5px;vertical-align:middle"></span>';
       return '<div style="margin-bottom:8px;padding-left:8px">'+
-        '<div style="font-size:7.5pt;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">'+dot+esc(sub.lbl)+'</div>'+
-        '<ul style="list-style:none;padding-left:12px;margin:0">'+pb(item.bullets,item.found)+'</ul></div>';
+        '<div style="font-size:7.5pt;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;display:flex;align-items:center">'+dot+esc(sub.lbl)+'</div>'+
+        '<ul style="list-style:none;padding-left:10px;margin:0">'+pb(item.bullets,item.found)+'</ul></div>';
     }).join('');
-    return '<div style="margin-bottom:14px;break-inside:avoid">'+
-      '<div style="background:#0e1f38;color:#c8a84b;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:6px">'+cfg.ico+' '+cfg.lbl+'</div>'+
+    return '<div style="margin-bottom:12px;break-inside:avoid">'+
+      '<div style="background:#0e1f38;color:#c8a84b;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:3px;margin-bottom:5px">'+cfg.ico+' '+cfg.lbl+'</div>'+
       rows+'</div>';
   }
   function pt(sec, data) {
     if (!data) return '';
-    return '<div style="margin-bottom:14px;break-inside:avoid">'+
-      '<div style="background:#0e1f38;color:#c8a84b;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:6px">'+sec.ico+' '+sec.lbl+'</div>'+
-      '<ul style="list-style:none;padding-left:12px;margin:0">'+pb(data.bullets,data.found)+'</ul></div>';
+    return '<div style="margin-bottom:12px;break-inside:avoid">'+
+      '<div style="background:#0e1f38;color:#c8a84b;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:3px;margin-bottom:5px">'+sec.ico+' '+sec.lbl+'</div>'+
+      '<ul style="list-style:none;padding-left:10px;margin:0">'+pb(data.bullets,data.found)+'</ul></div>';
   }
   function pc(changes) {
     if (!changes||!changes.length) return '';
-    var h = '<div style="margin-bottom:14px;break-inside:avoid">'+
-      '<div style="background:#0a2040;color:#7aabdc;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:6px">🔍 YEAR-ON-YEAR CHANGES</div>';
+    var h = '<div style="margin-bottom:12px;break-inside:avoid">'+
+      '<div style="background:#0a2040;color:#7aabdc;font-size:8pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:3px;margin-bottom:5px">🔍 YEAR-ON-YEAR CHANGES</div>';
     ['new','modified','removed'].forEach(function(t){
       changes.filter(function(c){return c.type===t;}).forEach(function(c){
         var col = t==='new'?'#1a6a30':t==='modified'?'#7a5a00':'#7a1a1a';
-        h += '<div style="border-left:3px solid #5a8abf;padding:4px 0 4px 10px;margin-bottom:6px">'+
+        h += '<div style="border-left:3px solid #5a8abf;padding:3px 0 3px 8px;margin-bottom:5px">'+
           '<b style="color:'+col+';font-size:7.5pt">'+t.toUpperCase()+'</b> — '+esc(c.topic)+
           '<div style="font-size:9pt;margin-top:2px">'+esc(c.summary||c.current||'')+'</div>'+
           (c.previous&&t!=='new'?'<div style="font-size:8pt;color:#777;font-style:italic">Was: '+esc(c.previous)+'</div>':'')+
@@ -500,56 +509,27 @@ function printPDF() {
   SECS.forEach(function(s){ body += ps(s, r[s.key]); });
   TOPS.forEach(function(s){ body += pt(s, r[s.key]); });
   if (r.notes && r.notes !== 'None') {
-    body += '<div style="border:1.5px solid #c8a84b;border-radius:4px;padding:10px 14px;background:#fffdf5;margin-top:10px;break-inside:avoid">'+
-      '<b style="font-size:7.5pt;color:#9a7820;text-transform:uppercase;display:block;margin-bottom:4px">⚠ Notes</b>'+
+    body += '<div style="border:1.5px solid #c8a84b;border-radius:4px;padding:8px 12px;background:#fffdf5;margin-top:8px;break-inside:avoid">'+
+      '<b style="font-size:7.5pt;color:#9a7820;text-transform:uppercase;display:block;margin-bottom:3px">⚠ Notes</b>'+
       '<p style="font-size:9pt;color:#444">'+esc(r.notes)+'</p></div>';
   }
 
-  var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8"/>\n' +
-    '<title>'+esc(r.regattaName||'Regatta')+' Abstract</title>\n' +
-    '<style>\n' +
-    '* { box-sizing:border-box; margin:0; padding:0; }\n' +
-    'body { font-family:Georgia,serif; font-size:10pt; color:#1a2535; background:#fff; line-height:1.55; }\n' +
-    'ul { list-style:none; padding-left:0; margin:0; }\n' +
-    'li { margin-bottom:3px; font-size:9.5pt; }\n' +
-    '.cover { background:#0a1628; color:#fff; padding:20mm 18mm 12mm; }\n' +
-    '.pbtn { position:fixed; top:10px; right:10px; background:#c8a84b; color:#0a1628; border:none; border-radius:6px; padding:9px 18px; font-family:Arial,sans-serif; font-size:12px; font-weight:bold; cursor:pointer; z-index:999; }\n' +
-    '@media print {\n' +
-    '  .pbtn { display:none !important; }\n' +
-    '  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }\n' +
-    '  body { margin:0; }\n' +
-    '}\n' +
-    '</style>\n' +
-    '</head>\n<body>\n' +
-    '<button class="pbtn" onclick="window.print()">🖨 Save as PDF</button>\n' +
-    '<div class="cover">\n' +
-    '  <div style="font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:8px;font-family:Arial,sans-serif">Sailing Instructions Abstract</div>\n' +
-    '  <div style="font-size:21pt;font-weight:bold;color:#e8d89a;margin-bottom:6px">'+esc(r.regattaName||'Regatta')+'</div>\n' +
-    '  <div style="font-size:8pt;color:#6a8aaa;font-style:italic">'+esc(r.documentsSummary||'')+'</div>\n' +
-    '  <div style="float:right;font-size:7.5pt;color:#5a7a9a;font-family:Arial,sans-serif;margin-top:-40px">'+esc(date)+'</div>\n' +
-    '</div>\n' +
-    '<div style="height:2px;background:linear-gradient(90deg,#c8a84b,#e8c96a,#c8a84b)"></div>\n' +
-    '<div style="padding:10mm 18mm 14mm">\n' +
-    body +
-    '</div>\n' +
-    '</body>\n</html>';
+  // Cover header
+  var cover =
+    '<div style="background:#0a1628;color:#fff;padding:16mm 16mm 10mm;margin:-12mm -16mm 10mm;position:relative">' +
+      '<div style="font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:#c8a84b;margin-bottom:6px;font-family:Arial,sans-serif">Sailing Instructions Abstract</div>'+
+      '<div style="font-size:20pt;font-weight:bold;color:#e8d89a;margin-bottom:4px">'+esc(r.regattaName||'Regatta')+'</div>'+
+      '<div style="font-size:8pt;color:#6a8aaa;font-style:italic">'+esc(r.documentsSummary||'')+'</div>'+
+      '<div style="position:absolute;top:12mm;right:16mm;font-size:7.5pt;color:#5a7a9a;font-family:Arial,sans-serif">'+esc(date)+'</div>'+
+    '</div>'+
+    '<div style="height:2px;background:linear-gradient(90deg,#c8a84b,#e8c96a,#c8a84b);margin:-0px -16mm 10mm"></div>';
 
-  // Always use blob URL — never open blank window (causes current page to lose state)
-  var blob = new Blob([html], {type:'text/html'});
-  var url  = URL.createObjectURL(blob);
-  var w    = window.open(url, '_blank');
-  if (!w) {
-    // Popup blocked — download as .html file instead
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = (r.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_') + '_Abstract.html';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 3000);
-  }
-  // Don't revoke immediately — let the new tab fully load first
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 30000);
+  // Write into the hidden print area and trigger print
+  var pa = document.getElementById('print-area');
+  pa.innerHTML = cover + body;
+  window.print();
+  // Clear after print dialog closes (slight delay)
+  setTimeout(function(){ pa.innerHTML = ''; }, 1000);
 }
 
 </script>
