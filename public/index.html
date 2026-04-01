@@ -534,26 +534,22 @@ function printPDF() {
     '</div>\n' +
     '</body>\n</html>';
 
-  var w = window.open('', '_blank');
-  if (w) {
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-  } else {
-    // Popup blocked — download as HTML file
-    var blob = new Blob([html], {type:'text/html'});
-    var url  = URL.createObjectURL(blob);
-    var a    = document.createElement('a');
-    a.href   = url;
+  // Always use blob URL — never open blank window (causes current page to lose state)
+  var blob = new Blob([html], {type:'text/html'});
+  var url  = URL.createObjectURL(blob);
+  var w    = window.open(url, '_blank');
+  if (!w) {
+    // Popup blocked — download as .html file instead
+    var a = document.createElement('a');
+    a.href = url;
     a.download = (r.regattaName||'Regatta').replace(/[^a-z0-9]/gi,'_') + '_Abstract.html';
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    setTimeout(function(){
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 2000);
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 3000);
   }
+  // Don't revoke immediately — let the new tab fully load first
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 30000);
 }
 
 </script>
