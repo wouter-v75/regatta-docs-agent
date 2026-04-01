@@ -510,18 +510,21 @@ function printPDF(e) {
 '<div class="footer"><span>'+esc(r.regattaName||'Regatta')+' · Abstract</span><span>'+esc(date)+'</span></div>'+
 '</body></html>';
 
-  // Write into a new tab — never manipulate current page DOM
-  var w = window.open('', '_blank');
-  if (w) {
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-  } else {
-    // Popup blocked — write to a data URI instead (no DOM touch)
-    var blob = new Blob([html], {type:'text/html'});
-    var url  = URL.createObjectURL(blob);
-    window.location.href = url;  // navigate current tab as last resort
+  var blob = new Blob([html], {type:'text/html'});
+  var url  = URL.createObjectURL(blob);
+  var w    = window.open(url, '_blank');
+  if (!w) {
+    // Popup blocked — show message, never navigate away
+    var msg = document.getElementById('pdf-blocked-msg');
+    if (!msg) {
+      msg = document.createElement('div');
+      msg.id = 'pdf-blocked-msg';
+      msg.style.cssText = 'background:#1a3a1a;border:1px solid #4a8a4a;border-radius:8px;padding:12px 16px;margin-top:12px;color:#80c880;font-size:13px;';
+      document.getElementById('out').insertBefore(msg, document.getElementById('out').firstChild);
+    }
+    msg.innerHTML = '⚠️ Popup blocked by browser. <a href="'+url+'" target="_blank" style="color:#c8a84b">Click here to open the PDF</a> — then press 🖨 Save as PDF.';
   }
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
 }
 </script>
 </body>
