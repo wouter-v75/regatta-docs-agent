@@ -315,7 +315,7 @@ async function run() {
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:4096,
+        max_tokens:8192,
         system: buildSys(boatClass, withComp),
         messages:[{role:'user',content:userMsg}]
       })

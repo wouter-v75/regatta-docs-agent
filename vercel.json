@@ -1,5 +1,10 @@
 {
   "rewrites": [
     { "source": "/api/analyse", "destination": "/api/analyse.js" }
-  ]
+  ],
+  "functions": {
+    "api/analyse.js": {
+      "maxDuration": 60
+    }
+  }
 }
